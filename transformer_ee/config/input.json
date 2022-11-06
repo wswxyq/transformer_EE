@@ -1,0 +1,26 @@
+{
+    "vector": [
+        "particle.is_shower",
+        "particle.length",
+        "particle.start.x",
+        "particle.start.y",
+        "particle.start.z",
+        "particle.dir.x",
+        "particle.dir.y",
+        "particle.dir.z",
+        "particle.energy",
+        "particle.calE",
+        "particle.charge",
+        "particle.nHit"
+    ],
+    "scalar": [
+        "event.calE",
+        "event.charge",
+        "event.nHits"
+    ],
+    "target": [
+        "mc.nuE",
+        "mc.lepE"
+    ],
+    "max_num_prongs": 20
+}
