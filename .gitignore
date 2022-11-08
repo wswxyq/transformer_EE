@@ -2,3 +2,7 @@
 *.pyc
 plot
 sync.bash
+*.pdf
+*.npz
+*.zip
+save

@@ -3,14 +3,19 @@ A module for training a model.
 """
 
 import os
+import json
 
 import torch
+import numpy as np
+from matplotlib import pyplot as plt
 
 from transformer_ee.dataloader import Pandas_NC_Dataset, split_data
 from transformer_ee.utils import get_gpu, hash_dict
 from transformer_ee.model import create_model
+from transformer_ee.utils import plot_xstat, plot_y_hist
 from .optimizer import create_optimizer
 from .loss import get_loss_function
+from .loss_track import plot_loss
 
 
 class NCtrainer:
@@ -50,12 +55,16 @@ class NCtrainer:
         self.print_interval = input_d.get("print_interval", 1)
 
         self.save_path = os.path.join(
-            input_d.get("save_path", "."), "model" + hash_dict(self.input_d)
+            input_d.get("save_path", "."), "model_" + hash_dict(self.input_d)
         )
         os.makedirs(
             self.save_path,
             exist_ok=True,
         )
+        _json_name = os.path.join(self.save_path, "input.json")
+        if not os.path.exists(_json_name):
+            with open(_json_name, "w") as f:
+                json.dump(self.input_d, f, indent=4)
 
     def train(self):
         r"""
@@ -66,7 +75,7 @@ class NCtrainer:
             self.net.train()  # begin training
 
             batch_train_loss = []
-            
+
             for (batch_idx, batch) in enumerate(self.trainloader):
 
                 vector_train_batch = batch[0].to(self.gpu_device)
@@ -136,7 +145,6 @@ class NCtrainer:
 
             self.net.to(self.gpu_device)
 
-
             print(
                 "Epoch: {}, train_loss: {:0.4f}, valid_loss: {:0.4f}".format(
                     i,
@@ -149,6 +157,99 @@ class NCtrainer:
                 self.bestscore = self.valid_loss_list_per_epoch[-1]
                 torch.save(
                     self.net.state_dict(),
-                    os.path.join(self.save_path, "best_model.zip")
+                    os.path.join(self.save_path, "best_model.zip"),
                 )
                 print("model saved with best score: {:0.4f}".format(self.bestscore))
+
+        plot_loss(
+            self.train_loss_list_per_epoch,
+            self.valid_loss_list_per_epoch,
+            self.save_path,
+        )
+
+    def eval(self):
+        r"""
+        Evaluate the model.
+        """
+        self.net.load_state_dict(
+            torch.load(
+                os.path.join(self.save_path, "best_model.zip"),
+                map_location=torch.device("cpu"),
+            )
+        )
+        self.net.eval()
+
+        trueval = []
+        prediction = []
+
+        self.net.cpu()
+
+        for (_batch_idx, batch) in enumerate(self.testloader):
+            vector_valid_batch = batch[0]
+            scalar_valid_batch = batch[1]
+            mask_valid_batch = batch[2]
+            target_valid_batch = batch[3]
+
+            Netout = self.net.forward(
+                vector_valid_batch, scalar_valid_batch, mask_valid_batch
+            )
+            trueval.append(target_valid_batch.detach().numpy())
+            prediction.append((Netout.detach().numpy()))
+        trueval = np.concatenate(trueval)  # [:,0]
+        prediction = np.concatenate(prediction)
+        np.savez(
+            os.path.join(self.save_path, "result.npz"),
+            trueval=trueval,
+            prediction=prediction,
+        )
+
+        truet = trueval[:, 0]
+        predt = prediction[:, 0]
+
+        resolution = (predt - truet) / truet
+
+        with open(os.path.join(self.save_path, "result.txt"), "w") as f:
+            f.write("mean resolution: {:0.4f} \n".format(np.mean(resolution)))
+            f.write("std resolution: {:0.4f} \n".format(np.std(resolution)))
+            f.write("mean predt: {:0.4f} \n".format(np.mean(predt)))
+
+        print("mean resolution: ", np.mean(resolution))
+        print("std resolution: ", np.std(resolution))
+        print("rms resolution: ", np.sqrt(np.mean(resolution**2)))
+
+        filename = "testset_result"
+        basename = filename
+        _, _, _ = plot_xstat(
+            truet,
+            (predt - truet) / truet,
+            bins=50,
+            range=(0, 5),
+            outdir=self.save_path,
+            name=basename + "_xstat",
+            title=filename,
+            ext="pdf",
+            xlabel="True E",
+            ylabel="(Reco E - True E) / True E",
+        )
+        _, _, _ = plot_xstat(
+            predt,
+            (predt - truet) / truet,
+            bins=50,
+            range=(0, 5),
+            outdir=self.save_path,
+            name=basename + "_xstat_xreco",
+            title=filename,
+            ext="pdf",
+            xlabel="Reco E",
+            ylabel="(Reco E - True E) / True E",
+        )
+
+        plot_y_hist(
+            (predt - truet) / truet,
+            range=(-1, 1),
+            outdir=self.save_path,
+            name=basename + "_yhist",
+            title=filename,
+            bins=200,
+            xlabel="(Reco E - True E) / True E",
+        )
