@@ -1,6 +1,9 @@
+"""
+Transformer Encoder based energy estimator models.
+"""
+
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch import nn
 
 # by default, the input is of shape (batch_size, seq_len, embedding_dim)
 
@@ -11,14 +14,14 @@ class Transformer_EE_v1(nn.Module):
     """
 
     def __init__(self):
-        super(Transformer_EE_v1, self).__init__()
+        super().__init__()
         self.transformer_encoder = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(d_model=12, nhead=4, batch_first=True),
             num_layers=6,
         )
         self.linear = nn.Linear(12, 2)
 
-    def forward(self, x, mask):
+    def forward(self, x, y, mask):
         output = self.transformer_encoder(x, src_key_padding_mask=mask)
         output = output.masked_fill(torch.unsqueeze(mask, -1), 0)
         output = torch.sum(output, dim=1)
@@ -34,31 +37,31 @@ class Transformer_EE_v2(nn.Module):
     """
 
     def __init__(self):
-        super(Transformer_EE_v2, self).__init__()
+        super().__init__()
         self.transformer_encoder_1 = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(d_model=12, nhead=4, batch_first=True),
-            num_layers=2,
+            num_layers=1,
         )
 
         self.linear_1 = nn.Linear(12, 48)
 
         self.transformer_encoder_2 = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(d_model=48, nhead=8, batch_first=True),
-            num_layers=2,
+            num_layers=1,
         )
 
         self.linear_2 = nn.Linear(48, 256)
 
         self.transformer_encoder_3 = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(d_model=256, nhead=8, batch_first=True),
-            num_layers=2,
+            num_layers=1,
         )
 
         self.linear_3 = nn.Linear(256, 1024)
 
         self.transformer_encoder_4 = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(d_model=1024, nhead=8, batch_first=True),
-            num_layers=2,
+            num_layers=1,
         )
 
         self.linear_4 = nn.Linear(1024, 2)

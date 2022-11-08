@@ -1,4 +1,5 @@
 {
+    "data_path": "transformer_ee/data/2022-08-21_rnne_NC_250_fGScatter_20MeV_KE_01e8_max_trackE_cut.csv.xz",
     "vector": [
         "particle.is_shower",
         "particle.length",
@@ -22,5 +23,26 @@
         "mc.nuE",
         "mc.lepE"
     ],
-    "max_num_prongs": 20
+    "max_num_prongs": 20,
+    "batch_size_train": 1024,
+    "batch_size_valid": 256,
+    "batch_size_test": 3000,
+    "test_size": 0.2,
+    "valid_size": 0.04,
+    "seed": 0,
+    "loss": {
+        "name": "mean absolute percentage error",
+        "kwargs": {}
+    },
+    "optimizer": {
+        "name": "Adam",
+        "kwargs": {
+            "lr": 0.001
+        }
+    },
+    "model": {
+        "name": "Transformer_EE_v1",
+        "kwargs": {}
+    },
+    "save_path": "save/model"
 }
