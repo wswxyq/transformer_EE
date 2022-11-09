@@ -195,6 +195,7 @@ class NCtrainer:
             )
             trueval.append(target_valid_batch.detach().numpy())
             prediction.append((Netout.detach().numpy()))
+
         trueval = np.concatenate(trueval)  # [:,0]
         prediction = np.concatenate(prediction)
         np.savez(
@@ -211,7 +212,9 @@ class NCtrainer:
         with open(os.path.join(self.save_path, "result.txt"), "w") as f:
             f.write("mean resolution: {:0.4f} \n".format(np.mean(resolution)))
             f.write("std resolution: {:0.4f} \n".format(np.std(resolution)))
-            f.write("mean predt: {:0.4f} \n".format(np.mean(predt)))
+            f.write(
+                "rms resolution: {:0.4f} \n".format(np.sqrt(np.mean(resolution**2)))
+            )
 
         print("mean resolution: ", np.mean(resolution))
         print("std resolution: ", np.std(resolution))

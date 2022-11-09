@@ -2,12 +2,14 @@
 Create models from config.
 """
 # import all the necessary model class here
-from .transformerEncoder import Transformer_EE_v1, Transformer_EE_v2
+from .transformerEncoder import *
 
 # add the model classes here
 model_dict = {
     "Transformer_EE_v1": Transformer_EE_v1,
     "Transformer_EE_v2": Transformer_EE_v2,
+    "Transformer_EE_v3": Transformer_EE_v3,
+    "Transformer_EE_v4": Transformer_EE_v4,
 }
 
 
@@ -34,5 +36,9 @@ def create_model(config: dict):
     model = model_dict[config["model"]["name"]](**_kwgs)
 
     print("Model created: {}".format(model))
+
+    pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    print("Total number of trainable parameters: {}".format(pytorch_total_params))
 
     return model
