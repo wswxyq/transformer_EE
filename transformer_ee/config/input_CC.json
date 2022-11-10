@@ -24,12 +24,13 @@
         "mc.lepE"
     ],
     "max_num_prongs": 21,
-    "batch_size_train": 1024,
+    "batch_size_train": 256,
     "batch_size_valid": 256,
     "batch_size_test": 3000,
     "test_size": 0.2,
     "valid_size": 0.04,
     "seed": 0,
+    "epochs": 200,
     "loss": {
         "name": "mean absolute percentage error",
         "kwargs": {}

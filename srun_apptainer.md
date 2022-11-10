@@ -22,5 +22,5 @@ apptainer shell  --nv \
     /wclustre/nova/users/wus/pytorch-1.13-py3.sif
 ```
 
-# the mappped directory will store the change in container i.e. .bash_history, .bash_rc 
+# the mappped directory(--home, etc) will store the change in container i.e. .bash_history, .bash_rc 
 

@@ -50,7 +50,8 @@ class NCtrainer:
             []
         )  # list to store validation losses after each epoch
 
-        self.epochs = input_d.get("epochs", 100)
+        self.epochs = input_d["model"].get("epochs", 100)
+        print("epochs: ", self.epochs)
         self.bestscore = 1e9
         self.print_interval = input_d.get("print_interval", 1)
 
@@ -116,15 +117,15 @@ class NCtrainer:
 
             self.net.eval()  # begin validation
 
-            self.net.to("cpu")
+            #self.net.to("cpu")
 
             batch_valid_loss = []
 
             for (batch_idx, batch) in enumerate(self.validloader):
-                vector_valid_batch = batch[0]
-                scalar_valid_batch = batch[1]
-                mask_valid_batch = batch[2]
-                target_valid_batch = batch[3]
+                vector_valid_batch = batch[0].to(self.gpu_device)
+                scalar_valid_batch = batch[1].to(self.gpu_device)
+                mask_valid_batch = batch[2].to(self.gpu_device)
+                target_valid_batch = batch[3].to(self.gpu_device)
 
                 Netout = self.net.forward(
                     vector_valid_batch, scalar_valid_batch, mask_valid_batch

@@ -51,7 +51,9 @@ class Pandas_NC_Dataset(Dataset):
         _scalar = torch.Tensor(row[self.scalarnames]).T
         _vector = _vector / self.stat_vector[1]
         _scalar = _scalar / self.stat_scalar[1]
-
+        '''if not _vectorsize: # if no prongs
+            print("Warning: sequence of length 0!")
+            print(F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0).shape)'''
         return_tuple = (
             # pad the vector to maxpronglen with zeros
             F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0),
