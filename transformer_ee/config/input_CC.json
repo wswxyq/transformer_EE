@@ -1,5 +1,5 @@
 {
-    "data_path": "transformer_ee/data/dataset_rnne_dune_numu.csv.xz",
+    "data_path": "transformer_ee/data/new_dataset_rnne_dune_numu.csv.xz",
     "vector": [
         "particle.is_shower",
         "particle.length",
@@ -45,5 +45,5 @@
         "name": "Transformer_EE_v1",
         "kwargs": {}
     },
-    "save_path": "save/model"
+    "save_path": "save/model/CC"
 }

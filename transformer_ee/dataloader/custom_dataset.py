@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 from .string_conv import string_to_float_list
 
+
 class Pandas_NC_Dataset(Dataset):
     """
     a customized Dataset for NC dataset in DUNE
@@ -36,7 +37,7 @@ class Pandas_NC_Dataset(Dataset):
             _tmp = []
             for y in self.df[x]:
                 _tmp.extend(y)
-            self.stat_vector.append([np.mean(_tmp), np.std(_tmp) + 1e9])
+            self.stat_vector.append([np.mean(_tmp), np.std(_tmp) + 1e-5])
         self.stat_vector = torch.Tensor(self.stat_vector).T
         self.stat_vector = self.stat_vector[:, None, :]
         self.d = {}
@@ -49,11 +50,8 @@ class Pandas_NC_Dataset(Dataset):
         _vectorsize = len(row[self.vectornames[0]])
         _vector = torch.Tensor(row[self.vectornames]).T
         _scalar = torch.Tensor(row[self.scalarnames]).T
-        _vector = _vector / self.stat_vector[1]
-        _scalar = _scalar / self.stat_scalar[1]
-        '''if not _vectorsize: # if no prongs
-            print("Warning: sequence of length 0!")
-            print(F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0).shape)'''
+        _vector = (_vector - self.stat_vector[0]) / self.stat_vector[1]  # modify here
+        _scalar = (_scalar - self.stat_scalar[0]) / self.stat_scalar[1]  # modify here
         return_tuple = (
             # pad the vector to maxpronglen with zeros
             F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0),

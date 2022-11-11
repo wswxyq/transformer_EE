@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from transformer_ee.dataloader import Pandas_NC_Dataset, split_data
 from transformer_ee.utils import get_gpu, hash_dict
 from transformer_ee.model import create_model
-from transformer_ee.utils import plot_xstat, plot_y_hist
+from transformer_ee.utils import plot_xstat, plot_y_hist, plot_2d_hist_count
 from .optimizer import create_optimizer
 from .loss import get_loss_function
 from .loss_track import plot_loss
@@ -34,6 +34,7 @@ class NCtrainer:
     def __init__(self, input_d: dict):
         self.gpu_device = get_gpu()  # get gpu device
         self.input_d = input_d
+        print(json.dumps(self.input_d, indent=4))
         self.dataset = Pandas_NC_Dataset(self.input_d)
         self.trainloader, self.validloader, self.testloader = split_data(
             self.dataset, self.input_d
@@ -117,7 +118,7 @@ class NCtrainer:
 
             self.net.eval()  # begin validation
 
-            #self.net.to("cpu")
+            # self.net.to("cpu")
 
             batch_valid_loss = []
 
@@ -231,7 +232,7 @@ class NCtrainer:
             outdir=self.save_path,
             name=basename + "_xstat",
             title=filename,
-            ext="pdf",
+            ext="png",
             xlabel="True E",
             ylabel="(Reco E - True E) / True E",
         )
@@ -243,7 +244,7 @@ class NCtrainer:
             outdir=self.save_path,
             name=basename + "_xstat_xreco",
             title=filename,
-            ext="pdf",
+            ext="png",
             xlabel="Reco E",
             ylabel="(Reco E - True E) / True E",
         )
@@ -255,5 +256,16 @@ class NCtrainer:
             name=basename + "_yhist",
             title=filename,
             bins=200,
+            ext="png",
             xlabel="(Reco E - True E) / True E",
+        )
+
+        plot_2d_hist_count(
+            truet,
+            predt,
+            outdir=self.save_path,
+            name=basename + "_2dhist",
+            ext="png",
+            xlabel="True E",
+            ylabel="Reco E",
         )

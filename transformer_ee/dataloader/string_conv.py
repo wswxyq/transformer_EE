@@ -7,5 +7,5 @@ def string_to_float_list(string):
     Otherwise, return empty list.
     """
     if not string or not isinstance(string, str):
-        return [0]
+        return []
     return [float(s) for s in string.split(",")]

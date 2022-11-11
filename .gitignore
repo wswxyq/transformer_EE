@@ -6,3 +6,4 @@ sync.bash
 *.npz
 *.zip
 save
+*.xz

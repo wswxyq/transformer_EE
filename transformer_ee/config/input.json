@@ -44,5 +44,5 @@
         "name": "Transformer_EE_v1",
         "kwargs": {}
     },
-    "save_path": "save/model"
+    "save_path": "save/model/NC"
 }
