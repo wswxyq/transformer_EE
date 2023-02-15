@@ -10,6 +10,9 @@ model_dict = {
     "Transformer_EE_v2": Transformer_EE_v2,
     "Transformer_EE_v3": Transformer_EE_v3,
     "Transformer_EE_v4": Transformer_EE_v4,
+    "Transformer_EE_v5": Transformer_EE_v5,
+    "Transformer_EE_v6": Transformer_EE_v6,
+    "Transformer_EE_v7": Transformer_EE_v7,
 }
 
 

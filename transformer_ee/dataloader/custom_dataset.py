@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from .string_conv import string_to_float_list
+from transformer_ee.utils.weights import create_weighter
 
 
 class Pandas_NC_Dataset(Dataset):
@@ -41,6 +42,11 @@ class Pandas_NC_Dataset(Dataset):
         self.stat_vector = torch.Tensor(self.stat_vector).T
         self.stat_vector = self.stat_vector[:, None, :]
         self.d = {}
+        self.weighter = None
+        self.reweight = False
+        if config.get("weight", None):
+            self.weighter = create_weighter(config, self.df)
+            self.reweight = True
 
     def __getitem__(self, index):
         if index in self.d:
@@ -50,11 +56,18 @@ class Pandas_NC_Dataset(Dataset):
         _vectorsize = len(row[self.vectornames[0]])
         _vector = torch.Tensor(row[self.vectornames]).T
         _scalar = torch.Tensor(row[self.scalarnames]).T
-        _vector = (_vector - self.stat_vector[0]) / self.stat_vector[1]  # modify here
-        _scalar = (_scalar - self.stat_scalar[0]) / self.stat_scalar[1]  # modify here
+        _vector = (_vector - self.stat_vector[0]) / self.stat_vector[1]
+        _vector = F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0)
+        _scalar = (_scalar - self.stat_scalar[0]) / self.stat_scalar[1]
+        _weight = 1
+
+        if not _vectorsize:
+            _vector = torch.zeros((self.maxpronglen, len(self.vectornames)))
+        if self.reweight:
+            _weight = self.weighter.getweight(row[self.targetname][0])
         return_tuple = (
             # pad the vector to maxpronglen with zeros
-            F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0),
+            _vector,
             # return the scalar
             _scalar,
             # return src_key_padding_mask
@@ -64,7 +77,8 @@ class Pandas_NC_Dataset(Dataset):
                 "constant",
                 1,  # pad with True
             ),
-            torch.Tensor(row[self.targetname]),
+            torch.Tensor(row[self.targetname]),  # return the target
+            _weight,  # return the weight
         )
         self.d[index] = return_tuple
         return return_tuple

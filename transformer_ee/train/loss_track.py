@@ -18,3 +18,4 @@ def plot_loss(train_loss_list_per_epoch, valid_loss_list_per_epoch, save_path):
     _ax.set_ylabel("Loss", fontsize=14)
     _ax.legend(loc="best")
     plt.savefig(os.path.join(save_path, "loss.png"))
+    plt.close()

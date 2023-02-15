@@ -84,6 +84,9 @@ class NCtrainer:
                 scalar_train_batch = batch[1].to(self.gpu_device)
                 mask_train_batch = batch[2].to(self.gpu_device)
                 target_train_batch = batch[3].to(self.gpu_device)
+                weight_train_batch = batch[4].to(self.gpu_device)[
+                    :, None
+                ]  # add a dimension
 
                 Netout = self.net.forward(
                     vector_train_batch, scalar_train_batch, mask_train_batch
@@ -91,7 +94,10 @@ class NCtrainer:
                 # This will call the forward function, usually it returns tensors.
 
                 loss = get_loss_function(
-                    self.input_d["loss"]["name"], Netout, target_train_batch
+                    self.input_d["loss"]["name"],
+                    Netout,
+                    target_train_batch,
+                    weight=weight_train_batch,
                 )  # regression loss
 
                 # Zero the gradients before running the backward pass.
@@ -102,7 +108,6 @@ class NCtrainer:
                 # in Tensors with requires_grad=True, so this call will compute gradients for
                 # all learnable parameters in the model.
                 loss.backward()
-
                 # Calling the step function on an Optimizer makes an update to its
                 # parameters
                 self.optimizer.step()
@@ -127,15 +132,20 @@ class NCtrainer:
                 scalar_valid_batch = batch[1].to(self.gpu_device)
                 mask_valid_batch = batch[2].to(self.gpu_device)
                 target_valid_batch = batch[3].to(self.gpu_device)
+                weight_valid_batch = batch[4].to(self.gpu_device)[:, None]
 
                 Netout = self.net.forward(
                     vector_valid_batch, scalar_valid_batch, mask_valid_batch
                 )
                 # This will call the forward function, usually it returns tensors.
 
-                loss = torch.mean(
-                    torch.abs((Netout - target_valid_batch) / target_valid_batch)
+                loss = get_loss_function(
+                    self.input_d["loss"]["name"],
+                    Netout,
+                    target_valid_batch,
+                    weight=weight_valid_batch,
                 )
+
                 batch_valid_loss.append(loss)
                 if batch_idx % self.print_interval == 0:
                     print(
@@ -145,7 +155,7 @@ class NCtrainer:
                 torch.mean(torch.Tensor(batch_valid_loss))
             )
 
-            self.net.to(self.gpu_device)
+            # self.net.to(self.gpu_device)
 
             print(
                 "Epoch: {}, train_loss: {:0.4f}, valid_loss: {:0.4f}".format(
@@ -163,11 +173,11 @@ class NCtrainer:
                 )
                 print("model saved with best score: {:0.4f}".format(self.bestscore))
 
-        plot_loss(
-            self.train_loss_list_per_epoch,
-            self.valid_loss_list_per_epoch,
-            self.save_path,
-        )
+            plot_loss(
+                self.train_loss_list_per_epoch,
+                self.valid_loss_list_per_epoch,
+                self.save_path,
+            )
 
     def eval(self):
         r"""
@@ -185,18 +195,19 @@ class NCtrainer:
         prediction = []
 
         self.net.cpu()
+        self.net.to(self.gpu_device)
 
         for (_batch_idx, batch) in enumerate(self.testloader):
-            vector_valid_batch = batch[0]
-            scalar_valid_batch = batch[1]
-            mask_valid_batch = batch[2]
-            target_valid_batch = batch[3]
+            vector_valid_batch = batch[0].to(self.gpu_device)
+            scalar_valid_batch = batch[1].to(self.gpu_device)
+            mask_valid_batch = batch[2].to(self.gpu_device)
+            target_valid_batch = batch[3].to(self.gpu_device)
 
             Netout = self.net.forward(
                 vector_valid_batch, scalar_valid_batch, mask_valid_batch
             )
-            trueval.append(target_valid_batch.detach().numpy())
-            prediction.append((Netout.detach().numpy()))
+            trueval.append(target_valid_batch.detach().cpu().numpy())
+            prediction.append((Netout.detach().cpu().numpy()))
 
         trueval = np.concatenate(trueval)  # [:,0]
         prediction = np.concatenate(prediction)
