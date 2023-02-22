@@ -3,18 +3,24 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-from .string_conv import string_to_float_list
+
 from transformer_ee.utils.weights import create_weighter
+
+from .sequence import sequence_statistics, string_to_float_list
 
 
 class Pandas_NC_Dataset(Dataset):
     """
-    a customized Dataset for NC dataset in DUNE
+    A customized Dataset for NC dataset in DUNE
+    Currently NC samples have slice (scalar) features and prong (sequence) features
     """
 
     def __init__(self, config: dict):
+
+        # read the csv file from data_path
         self.df = pd.read_csv(config["data_path"])
 
+        # convert string to list of float
         for particle_feature in config["vector"]:
             self.df[particle_feature] = self.df[particle_feature].apply(
                 string_to_float_list
@@ -41,7 +47,7 @@ class Pandas_NC_Dataset(Dataset):
             self.stat_vector.append([np.mean(_tmp), np.std(_tmp) + 1e-5])
         self.stat_vector = torch.Tensor(self.stat_vector).T
         self.stat_vector = self.stat_vector[:, None, :]
-        self.d = {}
+        self.cached = {}
         self.weighter = None
         self.reweight = False
         if config.get("weight", None):
@@ -49,15 +55,17 @@ class Pandas_NC_Dataset(Dataset):
             self.reweight = True
 
     def __getitem__(self, index):
-        if index in self.d:
-            return self.d[index]
+        if index in self.cached:
+            return self.cached[index]
 
         row = self.df.iloc[index]
         _vectorsize = len(row[self.vectornames[0]])
         _vector = torch.Tensor(row[self.vectornames]).T
         _scalar = torch.Tensor(row[self.scalarnames]).T
         _vector = (_vector - self.stat_vector[0]) / self.stat_vector[1]
-        _vector = F.pad(_vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0)
+        _vector = F.pad(
+            _vector, (0, 0, 0, self.maxpronglen - _vectorsize), "constant", 0
+        )
         _scalar = (_scalar - self.stat_scalar[0]) / self.stat_scalar[1]
         _weight = 1
 
@@ -80,7 +88,7 @@ class Pandas_NC_Dataset(Dataset):
             torch.Tensor(row[self.targetname]),  # return the target
             _weight,  # return the weight
         )
-        self.d[index] = return_tuple
+        self.cached[index] = return_tuple
         return return_tuple
 
     def __len__(self):

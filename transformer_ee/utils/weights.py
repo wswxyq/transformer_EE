@@ -4,12 +4,26 @@ Calculate the weights for the loss function.
 import numpy as np
 
 
+class NullWeights:
+    """
+    A null weighter.
+    """
+
+    def getweight(self, array):
+        """
+        Return 1 for all weights.
+        """
+        return 1
+
+
 class FlatSpectraWeights:
     """
     Initialize the weights with an array, then return the weights (as array) for a given array.
     """
 
-    def __init__(self, array, bins=50, range=None, maxweight=np.inf, minweight=-np.inf) -> None:
+    def __init__(
+        self, array, bins=50, range=None, maxweight=np.inf, minweight=-np.inf
+    ) -> None:
         self.hist = np.histogram(array, bins=bins, range=range)
         self.weights = 1 / (self.hist[0] + 1)  # Add 1 to avoid division by zero
         self.weights = self.weights / np.mean(self.weights)
@@ -43,6 +57,9 @@ def create_weighter(config: dict, df):
             }
         }
     """
+    if "weight" not in config:
+        return NullWeights()
+
     _kwgs = config["weight"].get("kwargs", {})
     if config["weight"]["name"] == "FlatSpectraWeights":
         weighter = FlatSpectraWeights(

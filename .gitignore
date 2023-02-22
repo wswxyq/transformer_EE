@@ -7,3 +7,4 @@ sync.bash
 *.zip
 save
 *.xz
+.env

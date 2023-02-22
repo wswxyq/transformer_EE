@@ -2,23 +2,23 @@
 A module for training a model.
 """
 
-import json
 import os
+import json
 
-import numpy as np
 import torch
+import numpy as np
+from matplotlib import pyplot as plt
 
-from transformer_ee.dataloader.load import get_train_valid_test_dataloader
+from transformer_ee.dataloader import Pandas_NC_Dataset, split_data
+from transformer_ee.utils import get_gpu, hash_dict
 from transformer_ee.model import create_model
-from transformer_ee.utils import (get_gpu, hash_dict, plot_2d_hist_count,
-                                  plot_xstat, plot_y_hist)
-
+from transformer_ee.utils import plot_xstat, plot_y_hist, plot_2d_hist_count
+from .optimizer import create_optimizer
 from .loss import get_loss_function
 from .loss_track import plot_loss
-from .optimizer import create_optimizer
 
 
-class NCtrainer:
+class oldNCtrainer:
     r"""
     A class to train a model.
 
@@ -35,8 +35,10 @@ class NCtrainer:
         self.gpu_device = get_gpu()  # get gpu device
         self.input_d = input_d
         print(json.dumps(self.input_d, indent=4))
-
-        self.trainloader, self.validloader, self.testloader = get_train_valid_test_dataloader(input_d)
+        self.dataset = Pandas_NC_Dataset(self.input_d)
+        self.trainloader, self.validloader, self.testloader = split_data(
+            self.dataset, self.input_d
+        )
         self.net = create_model(self.input_d).to(self.gpu_device)
         self.optimizer = create_optimizer(self.input_d, self.net)
         self.bestscore = 1e9
