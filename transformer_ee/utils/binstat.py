@@ -79,9 +79,9 @@ def plot_xstat(x, y, stat1="mean", stat2="rms", name="xbinstat", **kwargs):
     _ax.set_xlim(_range[0], _range[1])
 
     if kwargs.get("plotgrid", True):
-        _ax.grid(b=True, which="major", color="#666666", linestyle="--", alpha=0.8)
+        _ax.grid(visible=True, which="major", color="#666666", linestyle="--", alpha=0.8)
         _ax.minorticks_on()
-        _ax.grid(b=True, which="minor", color="#999999", linestyle="-", alpha=0.2)
+        _ax.grid(visible=True, which="minor", color="#999999", linestyle="-", alpha=0.2)
     _ax.legend(loc="best", handles=[errb])
     plt.savefig(
         os.path.join(

@@ -10,8 +10,13 @@ import torch
 
 from transformer_ee.dataloader.load import get_train_valid_test_dataloader
 from transformer_ee.model import create_model
-from transformer_ee.utils import (get_gpu, hash_dict, plot_2d_hist_count,
-                                  plot_xstat, plot_y_hist)
+from transformer_ee.utils import (
+    get_gpu,
+    hash_dict,
+    plot_2d_hist_count,
+    plot_xstat,
+    plot_y_hist,
+)
 
 from .loss import get_loss_function
 from .loss_track import plot_loss
@@ -36,7 +41,11 @@ class NCtrainer:
         self.input_d = input_d
         print(json.dumps(self.input_d, indent=4))
 
-        self.trainloader, self.validloader, self.testloader = get_train_valid_test_dataloader(input_d)
+        (
+            self.trainloader,
+            self.validloader,
+            self.testloader,
+        ) = get_train_valid_test_dataloader(input_d)
         self.net = create_model(self.input_d).to(self.gpu_device)
         self.optimizer = create_optimizer(self.input_d, self.net)
         self.bestscore = 1e9
@@ -71,12 +80,11 @@ class NCtrainer:
         Train the model.
         """
         for i in range(self.epochs):
-
             self.net.train()  # begin training
 
             batch_train_loss = []
 
-            for (batch_idx, batch) in enumerate(self.trainloader):
+            for batch_idx, batch in enumerate(self.trainloader):
 
                 vector_train_batch = batch[0].to(self.gpu_device)
                 scalar_train_batch = batch[1].to(self.gpu_device)
@@ -125,33 +133,36 @@ class NCtrainer:
 
             batch_valid_loss = []
 
-            for (batch_idx, batch) in enumerate(self.validloader):
-                vector_valid_batch = batch[0].to(self.gpu_device)
-                scalar_valid_batch = batch[1].to(self.gpu_device)
-                mask_valid_batch = batch[2].to(self.gpu_device)
-                target_valid_batch = batch[3].to(self.gpu_device)
-                weight_valid_batch = batch[4].to(self.gpu_device)[:, None]
+            with torch.no_grad():
+                for batch_idx, batch in enumerate(self.validloader):
+                    vector_valid_batch = batch[0].to(self.gpu_device)
+                    scalar_valid_batch = batch[1].to(self.gpu_device)
+                    mask_valid_batch = batch[2].to(self.gpu_device)
+                    target_valid_batch = batch[3].to(self.gpu_device)
+                    weight_valid_batch = batch[4].to(self.gpu_device)[:, None]
 
-                Netout = self.net.forward(
-                    vector_valid_batch, scalar_valid_batch, mask_valid_batch
-                )
-                # This will call the forward function, usually it returns tensors.
-
-                loss = get_loss_function(
-                    self.input_d["loss"]["name"],
-                    Netout,
-                    target_valid_batch,
-                    weight=weight_valid_batch,
-                )
-
-                batch_valid_loss.append(loss)
-                if batch_idx % self.print_interval == 0:
-                    print(
-                        "Epoch: {}, batch: {} Loss: {:0.4f}".format(i, batch_idx, loss)
+                    Netout = self.net.forward(
+                        vector_valid_batch, scalar_valid_batch, mask_valid_batch
                     )
-            self.valid_loss_list_per_epoch.append(
-                torch.mean(torch.Tensor(batch_valid_loss))
-            )
+                    # This will call the forward function, usually it returns tensors.
+
+                    loss = get_loss_function(
+                        self.input_d["loss"]["name"],
+                        Netout,
+                        target_valid_batch,
+                        weight=weight_valid_batch,
+                    )
+
+                    batch_valid_loss.append(loss)
+                    if batch_idx % self.print_interval == 0:
+                        print(
+                            "Epoch: {}, batch: {} Loss: {:0.4f}".format(
+                                i, batch_idx, loss
+                            )
+                        )
+                self.valid_loss_list_per_epoch.append(
+                    torch.mean(torch.Tensor(batch_valid_loss))
+                )
 
             # self.net.to(self.gpu_device)
 
@@ -195,7 +206,7 @@ class NCtrainer:
         self.net.cpu()
         self.net.to(self.gpu_device)
 
-        for (_batch_idx, batch) in enumerate(self.testloader):
+        for _batch_idx, batch in enumerate(self.testloader):
             vector_valid_batch = batch[0].to(self.gpu_device)
             scalar_valid_batch = batch[1].to(self.gpu_device)
             mask_valid_batch = batch[2].to(self.gpu_device)

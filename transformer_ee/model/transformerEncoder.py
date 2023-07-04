@@ -409,3 +409,48 @@ class Transformer_EE_v7(nn.Module):
         output = torch.sum(output, dim=1)
         output = self.linear_6(output)
         return output
+
+
+class Transformer_EE_NOvA_v1(nn.Module):
+    """
+    information of slice and prongs are cancatenated together.
+    """
+
+    def __init__(self, num_layers=6, nhead=11, dim_feedforward=2048, dropout=0.1):
+        super().__init__()
+        self.transformer_encoder = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(
+                d_model=33,
+                nhead=nhead,
+                dim_feedforward=dim_feedforward,
+                dropout=dropout,
+                batch_first=True,
+            ),
+            num_layers=num_layers,
+        )
+        self.linear_scalar1 = nn.Linear(6, 12)
+        self.linear_scalar2 = nn.Linear(12, 12)
+
+        self.linear1 = nn.Linear(45, 45)
+        self.linear2 = nn.Linear(45, 45)
+        self.linear3 = nn.Linear(45, 2)
+
+    def forward(self, x, y, mask):
+        output = self.transformer_encoder(x, src_key_padding_mask=mask)
+        output = output.masked_fill(torch.unsqueeze(mask, -1), 0)
+        output = torch.sum(output, dim=1)
+
+        y = self.linear_scalar1(y)
+        y = F.relu(y)
+        y = self.linear_scalar2(y)
+        y = F.relu(y)
+
+        output = torch.cat((output, torch.squeeze(y)), 1)
+
+        output = self.linear1(output)
+        output = F.relu(output)
+        output = self.linear2(output)
+        output = F.relu(output)
+        output = self.linear3(output)
+
+        return output
