@@ -37,8 +37,8 @@
                 0.5
             ],
             "base_loss_names": [
-                "mean squared error",
-                "mean absolute error"
+                "mean absolute percentage error",
+                "mean absolute percentage error"
             ]
         }
     },

@@ -1,0 +1,82 @@
+{
+    "data_path": "transformer_ee/data/dataset_lstm_ee_nd_rhc_nonswap_loose_cut.csv.xz",
+    "vector": [
+        "png.dir.x",
+        "png.dir.y",
+        "png.dir.z",
+        "png.start.x",
+        "png.start.y",
+        "png.start.z",
+        "png.cvnpart.muonid",
+        "png.cvnpart.electronid",
+        "png.cvnpart.pionid",
+        "png.cvnpart.protonid",
+        "png.cvnpart.photonid",
+        "png.bpf[0].energy",
+        "png.bpf[0].overlapE",
+        "png.bpf[0].momentum.x",
+        "png.bpf[0].momentum.y",
+        "png.bpf[0].momentum.z",
+        "png.bpf[1].energy",
+        "png.bpf[1].overlapE",
+        "png.bpf[1].momentum.x",
+        "png.bpf[1].momentum.y",
+        "png.bpf[1].momentum.z",
+        "png.bpf[2].energy",
+        "png.bpf[2].overlapE",
+        "png.bpf[2].momentum.x",
+        "png.bpf[2].momentum.y",
+        "png.bpf[2].momentum.z",
+        "png.len",
+        "png.nhit",
+        "png.nhitx",
+        "png.nhity",
+        "png.nplane",
+        "png.weightedCalE",
+        "png.calE"
+    ],
+    "scalar": [
+        "calE",
+        "remPngCalE",
+        "nHit",
+        "orphCalE",
+        "coarseTiming",
+        "lowGain"
+    ],
+    "target": [
+        "trueE",
+        "trueLepE"
+    ],
+    "max_num_prongs": 20,
+    "batch_size_train": 1024,
+    "batch_size_valid": 256,
+    "batch_size_test": 3000,
+    "test_size": 0.2,
+    "valid_size": 0.04,
+    "seed": 0,
+    "loss": {
+        "kwargs": {
+            "coefficients": [
+                0.5,
+                0.5
+            ],
+            "base_loss_names": [
+                "mean absolute percentage error",
+                "mean absolute percentage error"
+            ]
+        }
+    },
+    "optimizer": {
+        "name": "Adam",
+        "kwargs": {
+            "lr": 0.001
+        }
+    },
+    "model": {
+        "name": "Transformer_EE_MV",
+        "kwargs": {
+            "nhead": 11
+        }
+    },
+    "save_path": "save/model/NOvA"
+}
