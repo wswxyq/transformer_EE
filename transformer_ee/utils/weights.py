@@ -1,6 +1,7 @@
 """
 Calculate the weights for the loss function.
 """
+
 import numpy as np
 
 
@@ -13,7 +14,7 @@ class NullWeights:
         """
         Return 1 for all weights.
         """
-        return 1
+        return 1.0
 
 
 class FlatSpectraWeights:

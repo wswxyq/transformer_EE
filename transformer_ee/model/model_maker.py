@@ -6,14 +6,7 @@ from .transformerEncoder import *
 
 # add the model classes here
 model_dict = {
-    "Transformer_EE_v1": Transformer_EE_v1,
-    "Transformer_EE_v2": Transformer_EE_v2,
-    "Transformer_EE_v3": Transformer_EE_v3,
-    "Transformer_EE_v4": Transformer_EE_v4,
-    "Transformer_EE_v5": Transformer_EE_v5,
-    "Transformer_EE_v6": Transformer_EE_v6,
-    "Transformer_EE_v7": Transformer_EE_v7,
-    "Transformer_EE_NOvA_v1": Transformer_EE_NOvA_v1,
+    "Transformer_EE_MV": Transformer_EE_MV,
 }
 
 
@@ -33,16 +26,15 @@ def create_model(config: dict):
     Returns:
         a model
     """
-    _kwgs = config["model"]["kwargs"]
+
     if config["model"]["name"] not in model_dict:
         raise ValueError("Unsupported model: {}".format(config["model"]["name"]))
 
-    model = model_dict[config["model"]["name"]](**_kwgs)
+    model = model_dict[config["model"]["name"]](config)
 
-    print("Model created: {}".format(model))
+    print("Model created: {}".format(model)) # print the model
 
     pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-    print("Total number of trainable parameters: {}".format(pytorch_total_params))
+    print("Total number of trainable parameters: {}".format(pytorch_total_params)) # print the number of trainable parameters
 
     return model

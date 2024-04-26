@@ -1,13 +1,20 @@
 # transformer_EE
 A transformer encoder based neutrino energy estimator. This is a highly flexible frame work which allows for easy modification of the model, loss function, and data loader. Currently, the code supports CSV file with array stored as a comma separated string. We provide example scripts for NOvA and DUNE experiments.
 
+## New Features
+
+* Transformer encoder based model.
+* Customizable loss function (you can design very very complex loss functions).
+* Customizable model.
+* Customizable optimizer.
+
 ## Prerequisites
 
 It is recommended to use a venv/container to run the code. 
 
 * Python 3.10 was used for development.
 * PyTorch 1.13 was used for development. Pytorch 1.13 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
-* Pandas
+* Pandas=1.5 (newer versions may work but are not tested)
 * Numpy
 * Matplotlib >= 3.5
 

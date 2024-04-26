@@ -1,4 +1,6 @@
 import numpy as np
+import warnings
+#warnings.simplefilter(action='ignore', category=FutureWarning) # if pandas prints future warnings
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -64,7 +66,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         for scalar_name in self.scalarnames:
             self.stat[scalar_name] = [
                 np.mean(self.df[scalar_name]),
-                np.std(self.df[scalar_name]) + 1e-5,
+                np.std(self.df[scalar_name]) + 1e-10,
             ]
 
     def normalize(self, stat=None):
@@ -94,7 +96,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if index in self.cached:
             return self.cached[index]
 
-        row = self.normalized_df.iloc[index]
+        row = self.normalized_df.iloc[index] # get the row
 
         if not self.normalized:
             raise ValueError("Please call normalize() first!")

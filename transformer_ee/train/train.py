@@ -13,17 +13,14 @@ from transformer_ee.model import create_model
 from transformer_ee.utils import (
     get_gpu,
     hash_dict,
-    plot_2d_hist_count,
-    plot_xstat,
-    plot_y_hist,
 )
 
-from .loss import get_loss_function
+from .loss import linear_combination_loss
 from .loss_track import plot_loss
 from .optimizer import create_optimizer
 
 
-class NCtrainer:
+class MVtrainer:
     r"""
     A class to train a model.
 
@@ -99,11 +96,11 @@ class NCtrainer:
                 )
                 # This will call the forward function, usually it returns tensors.
 
-                loss = get_loss_function(
-                    self.input_d["loss"]["name"],
+                loss = linear_combination_loss(
                     Netout,
                     target_train_batch,
                     weight=weight_train_batch,
+                    **self.input_d["loss"]["kwargs"],
                 )  # regression loss
 
                 # Zero the gradients before running the backward pass.
@@ -146,11 +143,11 @@ class NCtrainer:
                     )
                     # This will call the forward function, usually it returns tensors.
 
-                    loss = get_loss_function(
-                        self.input_d["loss"]["name"],
+                    loss = linear_combination_loss(
                         Netout,
                         target_valid_batch,
                         weight=weight_valid_batch,
+                        **self.input_d["loss"]["kwargs"],
                     )
 
                     batch_valid_loss.append(loss)
@@ -241,51 +238,3 @@ class NCtrainer:
         print("mean resolution: ", np.mean(resolution))
         print("std resolution: ", np.std(resolution))
         print("rms resolution: ", np.sqrt(np.mean(resolution**2)))
-
-        filename = "testset_result"
-        basename = filename
-        _, _, _ = plot_xstat(
-            truet,
-            (predt - truet) / truet,
-            bins=50,
-            range=(0, 5),
-            outdir=self.save_path,
-            name=basename + "_xstat",
-            title=filename,
-            ext="png",
-            xlabel="True E",
-            ylabel="(Reco E - True E) / True E",
-        )
-        _, _, _ = plot_xstat(
-            predt,
-            (predt - truet) / truet,
-            bins=50,
-            range=(0, 5),
-            outdir=self.save_path,
-            name=basename + "_xstat_xreco",
-            title=filename,
-            ext="png",
-            xlabel="Reco E",
-            ylabel="(Reco E - True E) / True E",
-        )
-
-        plot_y_hist(
-            (predt - truet) / truet,
-            range=(-1, 1),
-            outdir=self.save_path,
-            name=basename + "_yhist",
-            title=filename,
-            bins=200,
-            ext="png",
-            xlabel="(Reco E - True E) / True E",
-        )
-
-        plot_2d_hist_count(
-            truet,
-            predt,
-            outdir=self.save_path,
-            name=basename + "_2dhist",
-            ext="png",
-            xlabel="True E",
-            ylabel="Reco E",
-        )
