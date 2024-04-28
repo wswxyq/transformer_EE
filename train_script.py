@@ -2,7 +2,7 @@ import json
 
 from transformer_ee.train import MVtrainer
 
-with open("transformer_ee/config/input_NOvA.json", encoding="UTF-8", mode="r") as f:
+with open("transformer_ee/config/input.json", encoding="UTF-8", mode="r") as f:
     input_d = json.load(f)
 
 

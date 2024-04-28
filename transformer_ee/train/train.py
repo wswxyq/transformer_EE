@@ -42,6 +42,7 @@ class MVtrainer:
             self.trainloader,
             self.validloader,
             self.testloader,
+            self.train_set_stat,
         ) = get_train_valid_test_dataloader(input_d)
         self.net = create_model(self.input_d).to(self.gpu_device)
         self.optimizer = create_optimizer(self.input_d, self.net)
@@ -67,10 +68,15 @@ class MVtrainer:
             self.save_path,
             exist_ok=True,
         )
-        _json_name = os.path.join(self.save_path, "input.json")
-        if not os.path.exists(_json_name):
-            with open(_json_name, "w") as f:
+        input_json = os.path.join(self.save_path, "input.json")
+        if not os.path.exists(input_json):
+            with open(input_json, "w") as f:
                 json.dump(self.input_d, f, indent=4)
+
+        stat_json = os.path.join(self.save_path, "trainset_stat.json")
+        if not os.path.exists(stat_json):
+            with open(stat_json, "w") as f:
+                json.dump(self.train_set_stat, f, indent=4)
 
     def train(self):
         r"""
@@ -222,19 +228,3 @@ class MVtrainer:
             trueval=trueval,
             prediction=prediction,
         )
-
-        truet = trueval[:, 0]
-        predt = prediction[:, 0]
-
-        resolution = (predt - truet) / truet
-
-        with open(os.path.join(self.save_path, "result.txt"), "w") as f:
-            f.write("mean resolution: {:0.4f} \n".format(np.mean(resolution)))
-            f.write("std resolution: {:0.4f} \n".format(np.std(resolution)))
-            f.write(
-                "rms resolution: {:0.4f} \n".format(np.sqrt(np.mean(resolution**2)))
-            )
-
-        print("mean resolution: ", np.mean(resolution))
-        print("std resolution: ", np.std(resolution))
-        print("rms resolution: ", np.sqrt(np.mean(resolution**2)))

@@ -1,11 +1,11 @@
-# the following command request a V100 node in Wilson CLuster 
+# the following commands request a V100 node in Wilson CLuster 
 ## (ignore the warning: bash: /nashome/.../.bashrc: Permission denied)
 
 [Go to official website for a full list of the nodes](https://computing.fnal.gov/wilsoncluster/hardware/)
 
 [recommanded config]
 ```
-srun --unbuffered --pty -A nova --partition=gpu_gce \
+srun --unbuffered --pty -A nova --partition=wc_gpu \
      --time=08:00:00 \
      --nodes=1 --ntasks-per-node=1 --gres=gpu:1 \
      --nodelist wcgpu06 /bin/bash

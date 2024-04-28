@@ -47,6 +47,6 @@ There are two ways to configure the code:
 1. Edit the config file directly.
 2. Modify the dictionary in the script/train_script.py file. For example, to select the model, add the following line:
 ```
-input_d["model"]["name"] = "Transformer_EE_v4"
+input_d["model"]["name"] = "Transformer_EE_MV"
 ```
 in the script/train_script.py file.

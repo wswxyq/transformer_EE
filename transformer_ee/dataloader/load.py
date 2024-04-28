@@ -1,6 +1,8 @@
 """
 Load the data
 """
+import json
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -85,4 +87,4 @@ def get_train_valid_test_dataloader(config: dict):
         test_set, batch_size=batch_size_test, shuffle=False
     )
 
-    return trainloader, validloader, testloader
+    return trainloader, validloader, testloader, train_set.stat
