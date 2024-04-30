@@ -10,13 +10,20 @@ A transformer encoder based neutrino energy estimator. This is a highly flexible
 
 ## Prerequisites
 
-It is recommended to use a venv/container to run the code. 
+It is recommended to use a venv/container to run the code.
 
 * Python 3.10 was used for development.
 * PyTorch 1.13 was used for development. Pytorch 1.13 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
-* Pandas=1.5 (newer versions may work but are not tested)
+* Pandas<=2.0 (newer versions may work but are not tested)
 * Numpy
 * Matplotlib >= 3.5
+
+### Example conda setup in a Linux system with NVIDIA GPU
+1. make sure you have conda installed in your computer. See https://docs.anaconda.com/free/miniconda/miniconda-install/ for more details.
+2. create a new conda environment by running `conda create --name new_env_name`
+3. activate the new environment by running `conda activate new_env_name`
+4. install the required packages by running `conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia`, see https://pytorch.org/get-started/locally/ for more details.
+5. install the other required packages by running `conda install scipy pandas=2.0 numpy matplotlib`
 
 ## Set up
 PYTHONPATH should be set to the top level directory of the repository.
