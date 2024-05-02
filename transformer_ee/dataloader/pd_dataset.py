@@ -102,8 +102,8 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
             raise ValueError("Please call normalize() first!")
 
         _vectorsize = len(row[self.vectornames[0]])
-        _vector = torch.Tensor(row[self.vectornames])
-        _scalar = torch.Tensor(row[self.scalarnames])
+        _vector = torch.Tensor(np.stack(row[self.vectornames].values))
+        _scalar = torch.Tensor(np.stack(row[self.scalarnames].values))
 
         _vector = _vector.T
 
@@ -126,7 +126,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
             _vector,
             _scalar,
             _mask.to(torch.bool),
-            torch.Tensor(row[self.targetname]),  # return the target
+            torch.Tensor(np.stack(row[self.targetname].values)),  # return the target
             self.weighter.getweight(row[self.targetname]),
         )
         self.cached[index] = return_tuple

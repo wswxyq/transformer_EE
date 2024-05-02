@@ -1,6 +1,6 @@
 numpy
 scipy
-pandas<=2.0
+pandas
 torch
 torchvision
 torchaudio

@@ -14,7 +14,7 @@ It is recommended to use a venv/container to run the code.
 
 * Python 3.10 was used for development.
 * PyTorch 1.13 was used for development. Pytorch 1.13 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
-* Pandas<=2.0 (newer versions may work but are not tested)
+* Pandas
 * Numpy
 * Matplotlib >= 3.5
 
@@ -45,15 +45,15 @@ The commandline should return:
 ## Running the code
 There is an example script for the NC dataset. To run the code, run the following command:
 ```
-python3 script/train_script.py
+python3 train_script.py
 ```
 
 ## Configuring the code
 The config file is a json file. The default config file is located at transformer_ee/config.
 There are two ways to configure the code:
 1. Edit the config file directly.
-2. Modify the dictionary in the script/train_script.py file. For example, to select the model, add the following line:
+2. Modify the dictionary in the train_script.py file. For example, to select the model, add the following line:
 ```
 input_d["model"]["name"] = "Transformer_EE_MV"
 ```
-in the script/train_script.py file.
+in the train_script.py file.
