@@ -79,6 +79,6 @@ def linear_combination_loss(output, target, weight=None, **kwargs):
     linear_loss = 0
     for i in range(len(base_loss_names)):
         linear_loss += coefficients[i] * loss_function[base_loss_names[i]](
-            output[:, i], target[:, i], weight
+            output[:, i], target[:, i], torch.squeeze(weight)
         )
     return linear_loss

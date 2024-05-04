@@ -34,8 +34,8 @@ class FlatSpectraWeights:
         self.bins[0] = -np.inf
         self.bins[-1] = np.inf
 
-    def getweight(self, array):
-        return self.weights[np.digitize(array, self.bins) - 1]
+    def getweight(self, x):
+        return self.weights[np.digitize(x, self.bins) - 1]
 
 
 def create_weighter(config: dict, df):

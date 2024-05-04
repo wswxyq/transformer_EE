@@ -8,3 +8,4 @@ sync.bash
 save
 *.xz
 .env
+test_script*

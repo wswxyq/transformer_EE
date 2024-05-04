@@ -123,11 +123,11 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
             _mask = torch.ones(self.maxpronglen)
 
         return_tuple = (
-            _vector,
-            _scalar,
-            _mask.to(torch.bool),
-            torch.Tensor(np.stack(row[self.targetname].values)),  # return the target
-            self.weighter.getweight(row[self.targetname]),
+            _vector, # shape: (max_seq_len, vector_dim)
+            _scalar, # shape: (scalar_dim)
+            _mask.to(torch.bool), # shape: (max_seq_len)
+            torch.Tensor(np.stack(row[self.targetname].values)),  # shape: (target_dim)
+            torch.Tensor([self.weighter.getweight(row[self.targetname[0]])]), # shape: (1)
         )
         self.cached[index] = return_tuple
         return return_tuple
