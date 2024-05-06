@@ -19,7 +19,7 @@ class NullWeights:
 
 class FlatSpectraWeights:
     """
-    Initialize the weights with an array, then return the weights (as array) for a given array.
+    Initialize the weights with an array, then return the weights (as array) for a given value x.
     """
 
     def __init__(

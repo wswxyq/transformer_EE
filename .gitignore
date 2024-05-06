@@ -9,3 +9,4 @@ save
 *.xz
 .env
 test_script*
+*.png

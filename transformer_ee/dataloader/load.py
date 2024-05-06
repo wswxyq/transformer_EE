@@ -59,10 +59,10 @@ def get_train_valid_test_dataloader(config: dict):
         config, df.iloc[train_idx].reset_index(drop=True, inplace=False)
     )
     valid_set = Normalized_pandas_Dataset_with_cache(
-        config, df.iloc[valid_idx].reset_index(drop=True, inplace=False)
+        config, df.iloc[valid_idx].reset_index(drop=True, inplace=False), weighter=train_set.weighter
     )
     test_set = Normalized_pandas_Dataset_with_cache(
-        config, df.iloc[test_idx].reset_index(drop=True, inplace=False)
+        config, df.iloc[test_idx].reset_index(drop=True, inplace=False), weighter=train_set.weighter
     )
 
     train_set.statistic()

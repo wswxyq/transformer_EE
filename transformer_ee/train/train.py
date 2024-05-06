@@ -10,7 +10,6 @@ import pandas as pd
 import torch
 
 from transformer_ee.dataloader.load import get_train_valid_test_dataloader
-from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
 from transformer_ee.model import create_model
 from transformer_ee.utils import (
     get_gpu,
@@ -91,11 +90,21 @@ class MVtrainer:
 
             for batch_idx, batch in enumerate(self.trainloader):
 
-                vector_train_batch = batch[0].to(self.gpu_device)   # shape: (batch_size, max_seq_len, vector_dim)
-                scalar_train_batch = batch[1].to(self.gpu_device)   # shape: (batch_size, scalar_dim)
-                mask_train_batch = batch[2].to(self.gpu_device)     # shape: (batch_size, max_seq_len)
-                target_train_batch = batch[3].to(self.gpu_device)   # shape: (batch_size, target_dim)
-                weight_train_batch = batch[4].to(self.gpu_device)   # shape: (batch_size, 1)
+                vector_train_batch = batch[0].to(
+                    self.gpu_device
+                )  # shape: (batch_size, max_seq_len, vector_dim)
+                scalar_train_batch = batch[1].to(
+                    self.gpu_device
+                )  # shape: (batch_size, scalar_dim)
+                mask_train_batch = batch[2].to(
+                    self.gpu_device
+                )  # shape: (batch_size, max_seq_len)
+                target_train_batch = batch[3].to(
+                    self.gpu_device
+                )  # shape: (batch_size, target_dim)
+                weight_train_batch = batch[4].to(
+                    self.gpu_device
+                )  # shape: (batch_size, 1)
                 Netout = self.net.forward(
                     vector_train_batch, scalar_train_batch, mask_train_batch
                 )
@@ -190,7 +199,7 @@ class MVtrainer:
                 self.save_path,
             )
 
-    def eval(self, testset_path: str = None):
+    def eval(self):
         r"""
         Evaluate the model.
         """
@@ -203,21 +212,10 @@ class MVtrainer:
         self.net.eval()
         self.net.to(self.gpu_device)
 
-        _testloader = self.testloader
-        # if testset_path is provided, use the testset_path.
-        if testset_path is not None:
-            _testset = Normalized_pandas_Dataset_with_cache(
-                self.input_d, pd.read_csv(testset_path)
-            )
-            _testset.normalize(self.train_set_stat)
-            _testloader = torch.utils.data.DataLoader(
-                _testset, batch_size=self.input_d["batch_size_test"], shuffle=False
-            )
-
         trueval = []
         prediction = []
 
-        for _batch_idx, batch in enumerate(_testloader):
+        for _batch_idx, batch in enumerate(self.testloader):
             vector_valid_batch = batch[0].to(self.gpu_device)
             scalar_valid_batch = batch[1].to(self.gpu_device)
             mask_valid_batch = batch[2].to(self.gpu_device)

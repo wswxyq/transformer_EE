@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-#warnings.simplefilter(action='ignore', category=FutureWarning) # if pandas prints future warnings
+
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -16,7 +16,8 @@ class pandas_Dataset(Dataset):
     A base PyTorch dataset for pandas dataframe
     """
 
-    def __init__(self, config: dict, dtframe: pd.DataFrame):
+    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False):
+        self.eval = eval
         self.config = config.copy()
 
         self.df = dtframe
@@ -24,8 +25,18 @@ class pandas_Dataset(Dataset):
         self.maxpronglen = config["max_num_prongs"]
         self.vectornames = config["vector"]
         self.scalarnames = config["scalar"]
-        self.targetname = config["target"]
-        self.weighter = create_weighter(self.config, self.df)
+        self.targetname = config["target"] if not self.eval else None
+        # If weighter is not provided, create a new one from config and dataframe.
+        # For prediction, the weighter should be set to NullWeights() manually.
+        self.weighter = None
+        if self.eval:
+            print("In evaluation mode, target = 0 and weighter = 1.")
+        elif weighter is None:
+            self.weighter = create_weighter(self.config, self.df)
+            print("Created weighter from config and data. Type: ", type(self.weighter))
+        else:
+            self.weighter = weighter
+            print("Using provided weighter. Type: ", type(self.weighter))
 
         # convert string to list of float
         for sequence_name in self.config["vector"]:
@@ -40,8 +51,9 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
     A base PyTorch dataset for pandas dataframe with normalization and caching
     """
 
-    def __init__(self, config: dict, dtframe: pd.DataFrame):
-        super().__init__(config, dtframe)
+    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False, use_cache=True):
+        super().__init__(config, dtframe, weighter=weighter, eval=eval)
+        self.use_cache = use_cache
         self.cached = {}
         self.normalized_df = self.df.copy()
 
@@ -55,6 +67,8 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         """
         Calculate the mean and standard deviation with respect to each column.
         """
+        if self.eval:
+            raise ValueError("In evaluation mode, do not call statistic()!")
         if self.normalized:
             raise ValueError("Already normalized! Do not call statistic() again!")
 
@@ -77,6 +91,8 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
 
         _stat = stat
         if _stat is None:  # by default, use the statistics calculated by statistic()
+            if self.eval:
+                raise ValueError("In evaluation mode, stat cannot be None!")
             print("Using statistics calculated by statistic()!")
             if not self.stat:
                 raise ValueError("Please call statistics() first!")
@@ -96,7 +112,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if index in self.cached:
             return self.cached[index]
 
-        row = self.normalized_df.iloc[index] # get the row
+        row = self.normalized_df.iloc[index]  # get the row
 
         if not self.normalized:
             raise ValueError("Please call normalize() first!")
@@ -122,12 +138,19 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
             _vector = torch.zeros((self.maxpronglen, len(self.vectornames)))
             _mask = torch.ones(self.maxpronglen)
 
+        _target = 0.0
+        _weight = 1.0
+        if not self.eval:
+            _target = torch.Tensor(np.stack(row[self.targetname].values))
+            _weight = torch.Tensor([self.weighter.getweight(row[self.targetname[0]])])
+
         return_tuple = (
-            _vector, # shape: (max_seq_len, vector_dim)
-            _scalar, # shape: (scalar_dim)
-            _mask.to(torch.bool), # shape: (max_seq_len)
-            torch.Tensor(np.stack(row[self.targetname].values)),  # shape: (target_dim)
-            torch.Tensor([self.weighter.getweight(row[self.targetname[0]])]), # shape: (1)
+            _vector,  # shape: (max_seq_len, vector_dim)
+            _scalar,  # shape: (scalar_dim)
+            _mask.to(torch.bool),  # shape: (max_seq_len)
+            _target,  # shape: (target_dim)
+            _weight,  # shape: (1)
         )
-        self.cached[index] = return_tuple
+        if self.use_cache:
+            self.cached[index] = return_tuple
         return return_tuple
