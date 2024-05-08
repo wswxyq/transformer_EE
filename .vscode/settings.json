@@ -1,14 +1,12 @@
 {
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.linting.pylintArgs": [
+    "pylint.args": [
         "--generated-members=numpy.* ,torch.*"
-        ],
-        "python.autoComplete.extraPaths": [
-            "$PYTHONPATH"
-        ],
-        "python.defaultInterpreterPath": "python3",
-        "python.analysis.extraPaths": [
-            "$PYTHONPATH"
-        ]
+    ],
+    "python.autoComplete.extraPaths": [
+        "$PYTHONPATH"
+    ],
+    "python.defaultInterpreterPath": "python3",
+    "python.analysis.extraPaths": [
+        "$PYTHONPATH"
+    ]
 }

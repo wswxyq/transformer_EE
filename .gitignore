@@ -1,12 +1,26 @@
+# macOS
 .DS_store
+
+# python cache
 *.pyc
-plot
-sync.bash
-*.pdf
-*.npz
-*.zip
-save
-*.xz
-.env
-test_script*
+
+# plots
 *.png
+plot
+*.pdf
+
+# numpy
+*.npy
+*.npz
+
+# compressed files
+*.xz
+*.zip
+
+# saved models
+save
+
+# others
+.env
+sync.bash
+test_script*

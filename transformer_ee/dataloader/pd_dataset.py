@@ -1,6 +1,4 @@
 import numpy as np
-import warnings
-
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -51,7 +49,14 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
     A base PyTorch dataset for pandas dataframe with normalization and caching
     """
 
-    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False, use_cache=True):
+    def __init__(
+        self,
+        config: dict,
+        dtframe: pd.DataFrame,
+        weighter=None,
+        eval=False,
+        use_cache=True,
+    ):
         super().__init__(config, dtframe, weighter=weighter, eval=eval)
         self.use_cache = use_cache
         self.cached = {}

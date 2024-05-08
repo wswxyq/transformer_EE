@@ -6,7 +6,6 @@ import json
 import os
 
 import numpy as np
-import pandas as pd
 import torch
 
 from transformer_ee.dataloader.load import get_train_valid_test_dataloader

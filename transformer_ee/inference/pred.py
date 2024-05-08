@@ -8,10 +8,10 @@ import os
 import json
 import pandas as pd
 import torch
+import numpy as np
 from transformer_ee.utils import get_gpu
 from transformer_ee.model import create_model
 from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
-import numpy as np
 
 
 class Predictor:
@@ -57,6 +57,7 @@ class Predictor:
             self.dataset,
             batch_size=self.train_config["batch_size_test"],
             shuffle=False,
+            num_workers=10,
         )
 
     def go(self):
