@@ -38,7 +38,7 @@ class FlatSpectraWeights:
         return self.weights[np.digitize(x, self.bins) - 1]
 
 
-def create_weighter(config: dict, df):
+def create_weighter(config: dict, array):
     """
     Create a weighter from a config.
     Args:
@@ -64,7 +64,8 @@ def create_weighter(config: dict, df):
     _kwgs = config["weight"].get("kwargs", {})
     if config["weight"]["name"] == "FlatSpectraWeights":
         weighter = FlatSpectraWeights(
-            df[config["target"][0]].values, **_kwgs
+            array, **_kwgs
+            #df[config["target"][0]].values, **_kwgs
         )  # Use the first target column to calculate the weights
     else:
         raise ValueError("Unsupported weighter: {}".format(config["weight"]["name"]))

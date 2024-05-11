@@ -3,26 +3,23 @@ Load the data
 """
 
 import numpy as np
-import pandas as pd
+import polars as pl
 import torch
 
-from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
+from transformer_ee.dataloader.polars_dataset import (
+    Normalized_Polars_Dataset_with_cache,
+)
+from .file_reader import get_polars_df_from_file
 
 
-def get_sample_indices(sample_size: int, config) -> tuple:
+def get_sample_sizes(sample_size: int, config) -> tuple:
     """
     A function to get the indices of the samples
 
     sample_size:    the number of samples
     config:         the configuration dictionary
-    return:         the indices of train, validation and test sets
+    return:         a tuple of three integers, the number of training samples, the number of validation samples, the number of test samples
     """
-
-    seed = config["seed"]
-
-    _indices = np.arange(sample_size)
-    np.random.seed(seed)
-    np.random.shuffle(_indices)
 
     test_size = config["test_size"]
     valid_size = config["valid_size"]
@@ -33,17 +30,11 @@ def get_sample_indices(sample_size: int, config) -> tuple:
     if isinstance(valid_size, float):
         valid_size = int(sample_size * valid_size)
 
-    train_indicies = _indices[: sample_size - valid_size - test_size]
-    valid_indicies = _indices[
-        sample_size - valid_size - test_size : sample_size - test_size
-    ]
-    test_indicies = _indices[sample_size - test_size :]
+    print("train indicies size:\t", sample_size - test_size - valid_size)
+    print("valid indicies size:\t", valid_size)
+    print("test  indicies size:\t", test_size)
 
-    print("train indicies size:\t", len(train_indicies))
-    print("valid indicies size:\t", len(valid_indicies))
-    print("test  indicies size:\t", len(test_indicies))
-
-    return train_indicies, valid_indicies, test_indicies
+    return sample_size - test_size - valid_size, valid_size, test_size
 
 
 def get_train_valid_test_dataloader(config: dict):
@@ -51,19 +42,22 @@ def get_train_valid_test_dataloader(config: dict):
     A function to get the train, validation and test datasets
     Use the statistic of the training set to normalize the validation and test sets
     """
-    df = pd.read_csv(config["data_path"])
-    train_idx, valid_idx, test_idx = get_sample_indices(len(df), config)
-    train_set = Normalized_pandas_Dataset_with_cache(
-        config, df.iloc[train_idx].reset_index(drop=True, inplace=False)
+    df = get_polars_df_from_file(config["data_path"])
+
+    randomdf = df.sample(fraction=1.0, seed=config["seed"], shuffle=True)
+    del df
+    sizes = get_sample_sizes(randomdf.height, config)
+    train_set = Normalized_Polars_Dataset_with_cache(
+        config, randomdf.slice(offset=0, length=sizes[0])
     )
-    valid_set = Normalized_pandas_Dataset_with_cache(
+    valid_set = Normalized_Polars_Dataset_with_cache(
         config,
-        df.iloc[valid_idx].reset_index(drop=True, inplace=False),
+        randomdf.slice(offset=sizes[0], length=sizes[1]),
         weighter=train_set.weighter,
     )
-    test_set = Normalized_pandas_Dataset_with_cache(
+    test_set = Normalized_Polars_Dataset_with_cache(
         config,
-        df.iloc[test_idx].reset_index(drop=True, inplace=False),
+        randomdf.slice(offset=sizes[0] + sizes[1], length=sizes[2]),
         weighter=train_set.weighter,
     )
 

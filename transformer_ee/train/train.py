@@ -8,7 +8,7 @@ import os
 import numpy as np
 import torch
 
-from transformer_ee.dataloader.load import get_train_valid_test_dataloader
+from transformer_ee.dataloader import get_train_valid_test_dataloader
 from transformer_ee.model import create_model
 from transformer_ee.utils import (
     get_gpu,

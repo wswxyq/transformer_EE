@@ -1,20 +1,18 @@
 import numpy as np
-import pandas as pd
+import polars as pl
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 
 from transformer_ee.utils.weights import create_weighter
 
-from .sequence import sequence_statistics, string_to_float_list
 
-
-class pandas_Dataset(Dataset):
+class Polars_Dataset(Dataset):
     """
     A base PyTorch dataset for pandas dataframe
     """
 
-    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False):
+    def __init__(self, config: dict, dtframe: pl.DataFrame, weighter=None, eval=False):
         self.eval = eval
         self.config = config.copy()
 
@@ -30,7 +28,9 @@ class pandas_Dataset(Dataset):
         if self.eval:
             print("In evaluation mode, target = 0 and weighter = 1.")
         elif weighter is None:
-            self.weighter = create_weighter(self.config, self.df)
+            self.weighter = create_weighter(
+                self.config, self.df[self.targetname[0]].to_numpy()
+            )
             print("Created weighter from config and data. Type: ", type(self.weighter))
         else:
             self.weighter = weighter
@@ -38,13 +38,20 @@ class pandas_Dataset(Dataset):
 
         # convert string to list of float
         for sequence_name in self.config["vector"]:
-            self.df[sequence_name] = self.df[sequence_name].apply(string_to_float_list)
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name).replace("", "0")
+            )
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name)
+                .str.split(by=",")
+                .cast(pl.List(pl.Float32))
+            )
 
     def __len__(self):
         return len(self.df)
 
 
-class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
+class Normalized_Polars_Dataset_with_cache(Polars_Dataset):
     """
     A base PyTorch dataset for pandas dataframe with normalization and caching
     """
@@ -52,7 +59,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
     def __init__(
         self,
         config: dict,
-        dtframe: pd.DataFrame,
+        dtframe: pl.DataFrame,
         weighter=None,
         eval=False,
         use_cache=True,
@@ -60,11 +67,6 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         super().__init__(config, dtframe, weighter=weighter, eval=eval)
         self.use_cache = use_cache
         self.cached = {}
-        self.normalized_df = self.df.copy()
-
-        # convert list of float to numpy array
-        for name in self.vectornames:
-            self.normalized_df[name] = self.normalized_df[name].apply(np.array)
         self.stat = {}
         self.normalized = False
 
@@ -79,13 +81,15 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
 
         # calculate mean and std for sequence features
         for sequence_name in self.vectornames:
-            self.stat[sequence_name] = sequence_statistics(self.df[sequence_name])
+            _ = self.df.get_column(sequence_name).explode()
+            self.stat[sequence_name] = [_.mean(), _.std() + 1e-10]
+            del _
 
         # calculate mean and std for scalar features
         for scalar_name in self.scalarnames:
             self.stat[scalar_name] = [
-                np.mean(self.df[scalar_name]),
-                np.std(self.df[scalar_name]) + 1e-10,
+                self.df.get_column(scalar_name).mean(),
+                self.df.get_column(scalar_name).std() + 1e-10,
             ]
 
     def normalize(self, stat=None):
@@ -106,9 +110,16 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if self.normalized:
             raise ValueError("Already normalized! Do not call normalize() again!")
 
-        for sequence_name in self.vectornames + self.scalarnames:
-            self.normalized_df[sequence_name] = self.normalized_df[sequence_name].apply(
-                lambda x: (x - _stat[sequence_name][0]) / _stat[sequence_name][1]
+        for sc_name in self.scalarnames:
+            self.df = self.df.with_columns(
+                (self.df.select(sc_name) - _stat[sc_name][0]) / _stat[sc_name][1]
+            )
+
+        for sequence_name in self.vectornames:
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name).list.eval(
+                    (pl.element() - _stat[sequence_name][0]) / _stat[sequence_name][1]
+                )
             )
 
         self.normalized = True
@@ -117,16 +128,12 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if index in self.cached:
             return self.cached[index]
 
-        row = self.normalized_df.iloc[index]  # get the row
-
         if not self.normalized:
             raise ValueError("Please call normalize() first!")
 
-        _vectorsize = len(row[self.vectornames[0]])
-        _vector = torch.Tensor(np.stack(row[self.vectornames].values))
-        _scalar = torch.Tensor(np.stack(row[self.scalarnames].values))
-
-        _vector = _vector.T
+        _vectorsize = len(self.df[index, self.vectornames[0]])
+        _vector = torch.Tensor([self.df[index, v].to_list() for v in self.vectornames]).T
+        _scalar = torch.Tensor([self.df[index, s] for s in self.scalarnames])
 
         _mask = torch.Tensor([0] * _vectorsize)
 
@@ -146,8 +153,10 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         _target = 0.0
         _weight = 1.0
         if not self.eval:
-            _target = torch.Tensor(np.stack(row[self.targetname].values))
-            _weight = torch.Tensor([self.weighter.getweight(row[self.targetname[0]])])
+            _target = torch.Tensor([self.df[index, t] for t in self.targetname])
+            _weight = torch.Tensor(
+                [self.weighter.getweight(self.df[index, self.targetname[0]])]
+            )
 
         return_tuple = (
             _vector,  # shape: (max_seq_len, vector_dim)

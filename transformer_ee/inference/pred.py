@@ -6,12 +6,12 @@ However, the target values are not provided in the input data and weights are no
 
 import os
 import json
-import pandas as pd
+import polars as pl
 import torch
 import numpy as np
 from transformer_ee.utils import get_gpu
 from transformer_ee.model import create_model
-from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
+from transformer_ee.dataloader.polars_dataset import Normalized_Polars_Dataset_with_cache
 
 
 class Predictor:
@@ -19,7 +19,7 @@ class Predictor:
     A class to make predictions using a trained model.
     """
 
-    def __init__(self, model_dir: str, dtframe: pd.DataFrame):
+    def __init__(self, model_dir: str, dtframe: pl.DataFrame):
         self.gpu_device = get_gpu()  # get gpu device
         self.model_dir = model_dir
         self.train_config = {}
@@ -38,7 +38,7 @@ class Predictor:
         self.net.eval()
         self.net.to(self.gpu_device)
         print("Loading dataset...")
-        self.dataset = Normalized_pandas_Dataset_with_cache(
+        self.dataset = Normalized_Polars_Dataset_with_cache(
             self.train_config,
             dtframe,
             eval=True,
@@ -64,10 +64,11 @@ class Predictor:
         """
         A function to make predictions using the trained model.
         """
+        print("Making predictions...")
         prediction = []
         with torch.no_grad():
             for _batch_idx, batch in enumerate(self.dataloader):
-                print("Batch: ", _batch_idx + 1, " / ", len(self.dataloader))
+                print("Batch: ", _batch_idx + 1, " / ", len(self.dataloader), end="\r")
                 vector_valid_batch = batch[0].to(self.gpu_device)
                 scalar_valid_batch = batch[1].to(self.gpu_device)
                 mask_valid_batch = batch[2].to(self.gpu_device)
