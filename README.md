@@ -14,7 +14,7 @@ It is recommended to use a venv/container to run the code.
 
 * Python 3.10 was used for development.
 * PyTorch 1.13 was used for development. Pytorch 1.13 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
-* Pandas
+* Polars
 * Numpy
 * Matplotlib >= 3.5
 
@@ -23,7 +23,7 @@ It is recommended to use a venv/container to run the code.
 2. create a new conda environment by running `conda create --name new_env_name`
 3. activate the new environment by running `conda activate new_env_name`
 4. install the required packages by running `conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia`, see https://pytorch.org/get-started/locally/ for more details.
-5. install the other required packages by running `conda install scipy pandas=2.0 numpy matplotlib`
+5. install the other required packages by running `conda install scipy polars numpy matplotlib`
 
 ## Set up
 PYTHONPATH should be set to the top level directory of the repository.

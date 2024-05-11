@@ -9,7 +9,7 @@ from transformer_ee.utils.weights import create_weighter
 
 class Polars_Dataset(Dataset):
     """
-    A base PyTorch dataset for pandas dataframe
+    A base PyTorch dataset for polars dataframe
     """
 
     def __init__(self, config: dict, dtframe: pl.DataFrame, weighter=None, eval=False):
@@ -53,7 +53,7 @@ class Polars_Dataset(Dataset):
 
 class Normalized_Polars_Dataset_with_cache(Polars_Dataset):
     """
-    A base PyTorch dataset for pandas dataframe with normalization and caching
+    A base PyTorch dataset for polars dataframe with normalization and caching
     """
 
     def __init__(
