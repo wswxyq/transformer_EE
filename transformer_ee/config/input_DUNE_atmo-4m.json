@@ -1,0 +1,56 @@
+{
+    "data_path": "~/data/dune_atmo_genie_300k.csv",
+    "vector": [
+        "genie_Eng",
+        "genie_Px",
+        "genie_Py",
+        "genie_Pz",
+        "genie_P",
+        "genie_mass"
+    ],
+    "scalar": [
+        "Q2_truth",
+        "X_truth",
+        "Y_truth"
+    ],
+    "target": [
+        "enu_truth",
+        "nu_dcosx_truth",
+        "nu_dcosy_truth",
+        "nu_dcosz_truth"
+    ],
+    "max_num_prongs": 20,
+    "batch_size_train": 1024,
+    "batch_size_valid": 256,
+    "batch_size_test": 3000,
+    "test_size": 0.2,
+    "valid_size": 0.04,
+    "seed": 0,
+    "loss": {
+        "kwargs": {
+            "coefficients": [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+            ],
+            "base_loss_names": [
+                "mean squared error",
+                "mean squared error",
+                "mean squared error",
+                "mean squared error"
+            ]
+        }
+    },
+    "optimizer": {
+        "name": "Adam",
+        "kwargs": {
+            "lr": 0.001
+        }
+    },
+    "model": {
+        "name": "Transformer_EE_MV",
+        "kwargs": {}
+    },
+    "save_path": "save/model/DUNE_atmo"
+}
