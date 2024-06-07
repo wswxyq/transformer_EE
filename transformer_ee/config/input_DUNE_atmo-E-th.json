@@ -15,9 +15,7 @@
     ],
     "target": [
         "enu_truth",
-        "nu_dcosx_truth",
-        "nu_dcosy_truth",
-        "nu_dcosz_truth"
+        "nu_theta"
     ],
     "max_num_prongs": 20,
     "batch_size_train": 1024,
@@ -30,13 +28,9 @@
         "kwargs": {
             "coefficients": [
                 0.5,
-                0.5,
-                0.5,
                 0.5
             ],
             "base_loss_names": [
-                "mean squared error",
-                "mean squared error",
                 "mean squared error",
                 "mean squared error"
             ]
@@ -53,5 +47,5 @@
         "kwargs": {}
     },
     "save_path": "/home/tthakore/save/model/DUNE_atmo",
-    "model_phys_name": "4-mom"
+    "model_phys_name": "E-th-new"
 }

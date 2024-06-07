@@ -78,6 +78,10 @@ def plot_xstat(x, y, stat1="mean", stat2="rms", name="xbinstat", **kwargs):
     _ax.hlines(0, _range[0], _range[1], linestyles="dashed", color="green")
     _ax.set_xlim(_range[0], _range[1])
 
+    if(kwargs.get('scale')=='log'):
+      _ax.set_xscale('log')
+      _ax.set_yscale('log')
+
     if kwargs.get("plotgrid", True):
         _ax.grid(visible=True, which="major", color="#666666", linestyle="--", alpha=0.8)
         _ax.minorticks_on()
@@ -227,6 +231,10 @@ def plot_2d_hist_count(x, y, name="hist2D", **kwargs):
     _ax.set_xlabel(kwargs.get("xlabel", ""), fontsize=14)
     _ax.set_ylabel(kwargs.get("ylabel", ""), fontsize=14)
     _ax.set_title(kwargs.get("title", ""), fontsize=16)
+
+    if(kwargs.get('scale')=='log'):
+      _ax.set_xscale('log')
+      _ax.set_yscale('log')  
 
     cax = _fig.add_axes(
         [

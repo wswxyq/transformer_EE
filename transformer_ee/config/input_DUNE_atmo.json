@@ -1,5 +1,5 @@
 {
-    "data_path": "~/data/dune_atmo_genie_300k.csv",
+    "data_path": "/exp/dune/app/users/tthakore/dune_ml_datsets/dune_atmo_genie_300k_dcosines.csv",
     "vector": [
         "genie_Eng",
         "genie_Px",
@@ -46,5 +46,6 @@
         "name": "Transformer_EE_MV",
         "kwargs": {}
     },
-    "save_path": "save/model/DUNE_atmo"
+    "save_path": "~/save/model/DUNE_atmo",
+    "model_phys_name": "2-targets"
 }
