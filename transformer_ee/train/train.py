@@ -221,11 +221,11 @@ class MVtrainer:
             plot_loss(
                 self.train_loss_list_per_epoch,
                 self.valid_loss_list_per_epoch,
-                self.save_path,
+                self.save_path
             )
 
             self.logger.info(f"Epoch [{i}] - Training Loss,  Validation Loss: {self.train_loss_list_per_epoch[-1]:.4f}, {self.valid_loss_list_per_epoch[-1]:.4f}")
-    
+        print("save_path: ", self.save_path)
 
     def eval(self):
         r"""

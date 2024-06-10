@@ -20,10 +20,11 @@ It is recommended to use a venv/container to run the code.
 
 ### Example conda setup in a Linux system with NVIDIA GPU
 1. make sure you have conda installed in your computer. See https://docs.anaconda.com/free/miniconda/miniconda-install/ for more details.
-2. create a new conda environment by running `conda create --name new_env_name`
-3. activate the new environment by running `conda activate new_env_name`
+2. create a new conda environment by running `conda create --name myenv`
+3. activate the new environment by running `conda activate myenv`
 4. install the required packages by running `conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia`, see https://pytorch.org/get-started/locally/ for more details.
-5. install the other required packages by running `conda install scipy pandas=2.0 numpy matplotlib`
+5. install the other required packages by running `conda install scipy pandas numpy matplotlib polars`
+6. optional - install ipykernell to use this env in a notebook `conda install ipykernel`
 
 ## Set up
 PYTHONPATH should be set to the top level directory of the repository.
