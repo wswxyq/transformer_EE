@@ -4,6 +4,7 @@ A module for training a model.
 
 import json
 import os
+import logging
 
 import numpy as np
 import torch
@@ -62,8 +63,10 @@ class MVtrainer:
         self.print_interval = input_d.get("print_interval", 1)
 
         self.save_path = os.path.join(
-            input_d.get("save_path", "."), "model_" + hash_dict(self.input_d)
+            #input_d.get("save_path", "."), "model_" + hash_dict(self.input_d)
+            input_d.get("save_path", "."), "model_" + input_d.get("model_phys_name")
         )
+        print("save_path: ",self.save_path)
         os.makedirs(
             self.save_path,
             exist_ok=True,
@@ -77,6 +80,28 @@ class MVtrainer:
         if not os.path.exists(stat_json):
             with open(stat_json, "w") as f:
                 json.dump(self.train_set_stat, f, indent=4)
+
+        # Set up logger
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+        self.logger = logging.getLogger()      
+
+        # Create a file handler
+        fh = logging.FileHandler(self.save_path + "/training.log")
+        fh.setLevel(logging.INFO)
+
+          # Create a console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        
+        # Create a formatter and set it for both handlers
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        
+        # Add handlers to the logger
+        self.logger.addHandler(fh)
+        self.logger.addHandler(ch)
+  
 
     def train(self):
         r"""
@@ -191,12 +216,16 @@ class MVtrainer:
                     os.path.join(self.save_path, "best_model.zip"),
                 )
                 print("model saved with best score: {:0.4f}".format(self.bestscore))
+                print("model saved at: ",self.save_path)
 
             plot_loss(
                 self.train_loss_list_per_epoch,
                 self.valid_loss_list_per_epoch,
-                self.save_path,
+                self.save_path
             )
+
+            self.logger.info(f"Epoch [{i}] - Training Loss,  Validation Loss: {self.train_loss_list_per_epoch[-1]:.4f}, {self.valid_loss_list_per_epoch[-1]:.4f}")
+        print("save_path: ", self.save_path)
 
     def eval(self):
         r"""
