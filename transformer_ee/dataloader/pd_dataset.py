@@ -9,12 +9,12 @@ from transformer_ee.utils.weights import create_weighter
 from .sequence import sequence_statistics, string_to_float_list
 
 
-class pandas_Dataset(Dataset):
+class pandas_Dataset(Dataset): # pylint: disable=C0103, W0223
     """
     A base PyTorch dataset for pandas dataframe
     """
 
-    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False):
+    def __init__(self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False): # pylint: disable=W0622
         self.eval = eval
         self.config = config.copy()
 
@@ -54,7 +54,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         config: dict,
         dtframe: pd.DataFrame,
         weighter=None,
-        eval=False,
+        eval=False, # pylint: disable=W0622
         use_cache=True,
     ):
         super().__init__(config, dtframe, weighter=weighter, eval=eval)
@@ -108,7 +108,9 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
 
         for sequence_name in self.vectornames + self.scalarnames:
             self.normalized_df[sequence_name] = self.normalized_df[sequence_name].apply(
-                lambda x: (x - _stat[sequence_name][0]) / _stat[sequence_name][1]
+                lambda x, seq_name: (x - _stat[seq_name][0])
+                / _stat[seq_name][1],
+                args=(sequence_name,),
             )
 
         self.normalized = True
