@@ -1,6 +1,7 @@
 """
 Create models from config.
 """
+
 # import all the necessary model class here
 from .transformerEncoder import *
 
@@ -32,9 +33,11 @@ def create_model(config: dict):
 
     model = model_dict[config["model"]["name"]](config)
 
-    print("Model created: {}".format(model)) # print the model
+    print("Model created: {}".format(model))  # print the model
 
     pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print("Total number of trainable parameters: {}".format(pytorch_total_params)) # print the number of trainable parameters
+    print(
+        "Total number of trainable parameters: {}".format(pytorch_total_params)
+    )  # print the number of trainable parameters
 
     return model

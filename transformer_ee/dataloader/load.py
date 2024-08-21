@@ -7,6 +7,7 @@ import pandas as pd
 import torch
 
 from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
+from transformer_ee.dataloader.noise import normalized_noise
 
 
 def get_sample_indices(sample_size: int, config) -> tuple:
@@ -77,11 +78,16 @@ def get_train_valid_test_dataloader(config: dict):
     batch_size_valid = config["batch_size_valid"]
     batch_size_test = config["batch_size_test"]
 
+    train_collate_fn = None
+    if "noise" in config:
+        train_collate_fn = normalized_noise(config, train_set.stat)
+
     trainloader = torch.utils.data.DataLoader(
         train_set,
         batch_size=batch_size_train,
         shuffle=True,
         num_workers=10,
+        collate_fn=train_collate_fn,
     )
 
     validloader = torch.utils.data.DataLoader(
