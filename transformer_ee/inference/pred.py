@@ -10,8 +10,8 @@ import pandas as pd
 import torch
 import numpy as np
 from transformer_ee.utils import get_gpu
-from transformer_ee.model import create_model
 from transformer_ee.dataloader.pd_dataset import Normalized_pandas_Dataset_with_cache
+from .load_model_checkpoint import load_model_checkpoint
 
 
 class Predictor:
@@ -22,19 +22,12 @@ class Predictor:
     def __init__(self, model_dir: str, dtframe: pd.DataFrame):
         self.gpu_device = get_gpu()  # get gpu device
         self.model_dir = model_dir
-        self.train_config = {}
         with open(
             os.path.join(self.model_dir, "input.json"), encoding="UTF-8", mode="r"
         ) as fc:
             self.train_config = json.load(fc)
         print("Loading model...")
-        self.net = create_model(self.train_config).to(self.gpu_device)
-        self.net.load_state_dict(
-            torch.load(
-                os.path.join(self.model_dir, "best_model.zip"),
-                map_location=torch.device("cpu"),
-            )
-        )
+        self.net = load_model_checkpoint(self.model_dir)
         self.net.eval()
         self.net.to(self.gpu_device)
         print("Loading dataset...")
