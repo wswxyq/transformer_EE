@@ -32,14 +32,6 @@ import torch
 from torch.utils.data._utils.collate import default_collate
 
 
-def uniform_noise(low, high, size: int):
-    return low + (high - low) * torch.rand(size)
-
-
-def gaussian_noise(mean, std, size: tuple):
-    return torch.normal(size)
-
-
 class normalized_noise:
     """
     Use this with Normalized_pandas_Dataset_with_cache.
