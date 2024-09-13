@@ -10,7 +10,7 @@ class NullWeights:
     A null weighter.
     """
 
-    def getweight(self, array):
+    def getweight(self, _):
         """
         Return 1 for all weights.
         """
@@ -22,7 +22,7 @@ class FlatSpectraWeights:
     Initialize the weights with an array, then return the weights (as array) for a given value x.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=W0622
         self, array, bins=50, range=None, maxweight=np.inf, minweight=-np.inf
     ) -> None:
         self.hist = np.histogram(array, bins=bins, range=range)
@@ -38,7 +38,7 @@ class FlatSpectraWeights:
         return self.weights[np.digitize(x, self.bins) - 1]
 
 
-def create_weighter(config: dict, df):
+def create_weighter(config: dict, array):
     """
     Create a weighter from a config.
     Args:
@@ -63,9 +63,7 @@ def create_weighter(config: dict, df):
 
     _kwgs = config["weight"].get("kwargs", {})
     if config["weight"]["name"] == "FlatSpectraWeights":
-        weighter = FlatSpectraWeights(
-            df[config["target"][0]].values, **_kwgs
-        )  # Use the first target column to calculate the weights
+        weighter = FlatSpectraWeights(array, **_kwgs)
     else:
-        raise ValueError("Unsupported weighter: {}".format(config["weight"]["name"]))
+        raise ValueError(f"Unsupported weighter: {config['weight']['name']}")
     return weighter

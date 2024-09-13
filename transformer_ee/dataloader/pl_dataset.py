@@ -1,5 +1,7 @@
-import numpy as np
-import pandas as pd
+import io
+import lzma
+
+import polars as pl
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
@@ -7,38 +9,47 @@ from torch.utils.data import Dataset
 from transformer_ee.utils.weights import create_weighter
 
 
-def string_to_float_list(string) -> list:
+def get_polars_df_from_xz_file(file_path):
     """
-    By default, convert all strings to list of floats.
-    Otherwise, return a list of one zero.
-    """
-    if not string or not isinstance(string, str):
-        return [0]
-    return [float(s) for s in string.split(",")]
-
-
-def sequence_statistics(column) -> list:
-    """
-    Calculate the mean and standard deviation of ALL ELEMENT in a sequence column.
-    Causion: if std = 0, add a small value to avoid division by zero.
-    """
-    _ = []
-    for sq in column:
-        _.extend(sq)  # flatten the list
-    return [
-        np.mean(_),
-        np.std(_) + 1e-10,
-    ]  # 1e-10 is a small value to avoid division by zero
-
-
-class pandas_Dataset(Dataset):  # pylint: disable=C0103, W0223
-    """
-    A base PyTorch dataset for pandas dataframe
+    Reads an xz file and returns a Polars DataFrame.
     """
 
-    def __init__(
-        self, config: dict, dtframe: pd.DataFrame, weighter=None, eval=False
-    ):  # pylint: disable=W0622
+    with open(file_path, "rb") as f:
+        xz_data = f.read()
+    memory_file = io.BytesIO(xz_data)
+    print("Decompressing data from xz file", file_path, "to memory...")
+    decompressed_data = lzma.decompress(memory_file.read())
+    decompressed_memory_file = io.BytesIO(decompressed_data)
+    return pl.read_csv(decompressed_memory_file)
+
+
+def get_polars_df_from_file(file_path):
+    """
+    Reads a file and returns a Polars DataFrame.
+
+    Args:
+        file_path (str): The path to the file.
+
+    Returns:
+        pl.DataFrame: A Polars DataFrame containing the data from the file.
+
+    Raises:
+        ValueError: If the file format is not supported.
+    """
+    if file_path.endswith(".csv"):
+        return pl.read_csv(file_path)
+    elif file_path.endswith(".xz"):
+        return get_polars_df_from_xz_file(file_path)
+    else:
+        raise ValueError("File format not supported")
+
+
+class Polars_Dataset(Dataset): # pylint: disable=C0103, W0223
+    """
+    A base PyTorch dataset for polars dataframe
+    """
+
+    def __init__(self, config: dict, dtframe: pl.DataFrame, weighter=None, eval=False): # pylint: disable=W0622
         self.eval = eval
         self.config = config.copy()
 
@@ -64,35 +75,36 @@ class pandas_Dataset(Dataset):  # pylint: disable=C0103, W0223
 
         # convert string to list of float
         for sequence_name in self.config["vector"]:
-            self.df[sequence_name] = self.df[sequence_name].apply(string_to_float_list)
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name).replace("", "0")
+            )
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name)
+                .str.split(by=",")
+                .cast(pl.List(pl.Float32))
+            )
 
     def __len__(self):
         return len(self.df)
 
 
-class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
+class Normalized_Polars_Dataset_with_cache(Polars_Dataset): # pylint: disable=C0103
     """
-    A base PyTorch dataset for pandas dataframe with normalization and caching
+    A base PyTorch dataset for polars dataframe with normalization and caching.
+    NOTE: Normalization is done in place.
     """
 
     def __init__(
         self,
         config: dict,
-        dtframe: pd.DataFrame,
+        dtframe: pl.DataFrame,
         weighter=None,
-        eval=False,  # pylint: disable=W0622
+        eval=False,
         use_cache=True,
     ):
         super().__init__(config, dtframe, weighter=weighter, eval=eval)
         self.use_cache = use_cache
         self.cached = {}
-        self.normalized_df = (
-            self.df.copy()
-        )  # NOTE: deep copy, normalization will be done out of place.
-
-        # convert list of float to numpy array
-        for name in self.vectornames:
-            self.normalized_df[name] = self.normalized_df[name].apply(np.array)
         self.stat = {}
         self.normalized = False
 
@@ -107,13 +119,15 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
 
         # calculate mean and std for sequence features
         for sequence_name in self.vectornames:
-            self.stat[sequence_name] = sequence_statistics(self.df[sequence_name])
+            _ = self.df.get_column(sequence_name).explode()
+            self.stat[sequence_name] = [_.mean(), _.std() + 1e-10]
+            del _
 
         # calculate mean and std for scalar features
         for scalar_name in self.scalarnames:
             self.stat[scalar_name] = [
-                np.mean(self.df[scalar_name]),
-                np.std(self.df[scalar_name]) + 1e-10,
+                self.df.get_column(scalar_name).mean(),
+                self.df.get_column(scalar_name).std() + 1e-10,
             ]
 
     def normalize(self, stat=None):
@@ -134,10 +148,16 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if self.normalized:
             raise ValueError("Already normalized! Do not call normalize() again!")
 
-        for sequence_name in self.vectornames + self.scalarnames:
-            self.normalized_df[sequence_name] = self.normalized_df[sequence_name].apply(
-                lambda x, seq_name: (x - _stat[seq_name][0]) / _stat[seq_name][1],
-                args=(sequence_name,),
+        for sc_name in self.scalarnames:
+            self.df = self.df.with_columns(
+                (self.df.select(sc_name) - _stat[sc_name][0]) / _stat[sc_name][1]
+            )
+
+        for sequence_name in self.vectornames:
+            self.df = self.df.with_columns(
+                self.df.get_column(sequence_name).list.eval(
+                    (pl.element() - _stat[sequence_name][0]) / _stat[sequence_name][1]
+                )
             )
 
         self.normalized = True
@@ -146,16 +166,14 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         if index in self.cached:
             return self.cached[index]
 
-        row = self.normalized_df.iloc[index]  # get the row
-
         if not self.normalized:
             raise ValueError("Please call normalize() first!")
 
-        _vectorsize = len(row[self.vectornames[0]])
-        _vector = torch.Tensor(np.stack(row[self.vectornames].values))
-        _scalar = torch.Tensor(np.stack(row[self.scalarnames].values))
-
-        _vector = _vector.T
+        _vectorsize = len(self.df[index, self.vectornames[0]])
+        _vector = torch.Tensor(
+            [self.df[index, v].to_list() for v in self.vectornames]
+        ).T
+        _scalar = torch.Tensor([self.df[index, s] for s in self.scalarnames])
 
         _mask = torch.Tensor([0] * _vectorsize)
 
@@ -175,8 +193,10 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
         _target = 0.0
         _weight = 1.0
         if not self.eval:
-            _target = torch.Tensor(np.stack(row[self.targetname].values))
-            _weight = torch.Tensor([self.weighter.getweight(row[self.targetname[0]])])
+            _target = torch.Tensor([self.df[index, t] for t in self.targetname])
+            _weight = torch.Tensor(
+                [self.weighter.getweight(self.df[index, self.targetname[0]])]
+            )
 
         return_tuple = (
             _vector,  # shape: (max_seq_len, vector_dim)

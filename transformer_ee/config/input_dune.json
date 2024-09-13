@@ -1,5 +1,5 @@
 {
-    "data_path": "transformer_ee/data/2022-08-21_rnne_NC_250_fGScatter_20MeV_KE_01e8_max_trackE_cut.csv.xz",
+    "data_path": "transformer_ee/data/dune/2022-08-21_rnne_NC_250_fGScatter_20MeV_KE_01e8_max_trackE_cut.csv.xz",
     "vector": [
         "particle.is_shower",
         "particle.length",
