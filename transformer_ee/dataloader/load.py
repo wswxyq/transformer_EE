@@ -86,7 +86,7 @@ def get_train_valid_test_dataloader(config: dict):
         train_set,
         batch_size=batch_size_train,
         shuffle=True,
-        num_workers=10,
+        num_workers=config.get("num_workers", 10),
         collate_fn=train_collate_fn,
     )
 
@@ -94,14 +94,14 @@ def get_train_valid_test_dataloader(config: dict):
         valid_set,
         batch_size=batch_size_valid,
         shuffle=False,
-        num_workers=10,
+        num_workers=config.get("num_workers", 10),
     )
 
     testloader = torch.utils.data.DataLoader(
         test_set,
         batch_size=batch_size_test,
         shuffle=False,
-        num_workers=10,
+        num_workers=config.get("num_workers", 10),
     )
 
     return trainloader, validloader, testloader, train_set.stat

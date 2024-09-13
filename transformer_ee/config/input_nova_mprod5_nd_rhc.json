@@ -1,5 +1,5 @@
 {
-    "data_path": "transformer_ee/data/dataset_lstm_ee_nd_rhc_nonswap_loose_cut.csv.xz",
+    "data_path": "transformer_ee/data/nova/mprod5/dataset_lstm_ee_nd_rhc_nonswap_loose_cut.csv.xz",
     "vector": [
         "png.dir.x",
         "png.dir.y",
@@ -78,5 +78,5 @@
             "nhead": 11
         }
     },
-    "save_path": "save/model/NOvA"
+    "save_path": "save/model/NOvA/mprod5"
 }

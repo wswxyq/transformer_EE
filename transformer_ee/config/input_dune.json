@@ -52,5 +52,5 @@
         "name": "Transformer_EE_MV",
         "kwargs": {}
     },
-    "save_path": "save/model/NC"
+    "save_path": "save/model/dune/NC"
 }

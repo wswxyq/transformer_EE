@@ -27,6 +27,8 @@ def create_optimizer(config: dict, model: nn.Module):
     _kwgs = config["optimizer"]["kwargs"]
     if config["optimizer"]["name"] == "Adam":
         optimizer = optim.Adam(model.parameters(), **_kwgs)
+    elif config["optimizer"]["name"] == "AdamW":
+        optimizer = optim.AdamW(model.parameters(), **_kwgs)
     elif config["optimizer"]["name"] == "adamax":
         optimizer = optim.Adamax(model.parameters(), **_kwgs)
     elif config["optimizer"]["name"] == "sgd":
