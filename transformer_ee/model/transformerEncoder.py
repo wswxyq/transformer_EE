@@ -27,7 +27,9 @@ class Transformer_EE_MV(nn.Module):
         _kwargs = config["model"]["kwargs"]
         _nhead = _kwargs.get("nhead", 4)
         if len(config["vector"]) % _nhead != 0:
-            raise ValueError("The length of vector must be divisible by the nhead!")
+            raise ValueError(
+                "The number of vector variables must be divisible by the nhead!"
+            )
         self.transformer_encoder = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(
                 d_model=len(
