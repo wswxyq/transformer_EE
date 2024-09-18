@@ -13,8 +13,9 @@ A transformer encoder based neutrino energy estimator. This is a highly flexible
 It is recommended to use a venv/container to run the code.
 
 * Python 3.10 was used for development.
-* PyTorch 1.13 was used for development. Pytorch 1.13 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
-* Pandas
+* PyTorch 2.3.0 was used for development. Pytorch 2.3.0 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS.
+* Pandas (default dataframe library)
+* [Polars](https://pola.rs/) (an optional faster dataframe library)
 * Numpy
 * Matplotlib >= 3.5
 
@@ -28,12 +29,12 @@ It is recommended to use a venv/container to run the code.
 ## Set up
 PYTHONPATH should be set to the top level directory of the repository.
 
-For example, if this repo is cloned to /home/user/transformer_EE, then the following should be added to your .bashrc file:
+For example, if this repo is cloned to `/home/user/transformer_EE`, then the following should be added to your `.bashrc` file:
 ```
 export PYTHONPATH=/home/user/transformer_EE:$PYTHONPATH
 ```
 
-Test that the PYTHONPATH is set correctly by running the following command:
+Test that the `PYTHONPATH` is set correctly by running the following command:
 ```
 echo $PYTHONPATH
 ```
