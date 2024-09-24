@@ -8,7 +8,7 @@ import torch
 from transformer_ee.model import create_model
 
 
-def load_model_checkpoint(model_dir: str):
+def load_model_checkpoint(model_dir: str, eval_mode: bool = True):
     """
     Load a model checkpoint and return a Predictor object.
 
@@ -27,4 +27,7 @@ def load_model_checkpoint(model_dir: str):
         )
     )
     print("Model loaded from checkpoint.")
+    if eval_mode:
+        net.eval()
+        print("Model set to evaluation mode.")
     return net
