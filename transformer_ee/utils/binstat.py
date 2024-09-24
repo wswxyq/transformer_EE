@@ -1,4 +1,5 @@
 """Module for binning data and plotting histograms."""
+
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,7 +80,9 @@ def plot_xstat(x, y, stat1="mean", stat2="rms", name="xbinstat", **kwargs):
     _ax.set_xlim(_range[0], _range[1])
 
     if kwargs.get("plotgrid", True):
-        _ax.grid(visible=True, which="major", color="#666666", linestyle="--", alpha=0.8)
+        _ax.grid(
+            visible=True, which="major", color="#666666", linestyle="--", alpha=0.8
+        )
         _ax.minorticks_on()
         _ax.grid(visible=True, which="minor", color="#999999", linestyle="-", alpha=0.2)
     _ax.legend(loc="best", handles=[errb])
@@ -156,7 +159,7 @@ def plot_y_hist(x, name="yhist", **kwargs):
             RMS : {stat_rms:.1%}\n\
             Std : {stat_sigma:.1%}\n\
             \n\
-            Gauss:\n\
+            Gaussian:\n\
             MEAN : {popt[0]:.1%}\n\
             Std : {popt[1]:.1%}\n",
         transform=_ax.transAxes,
@@ -164,7 +167,7 @@ def plot_y_hist(x, name="yhist", **kwargs):
         va="top",
     )
 
-    _xplot = np.linspace(_range[0], _range[1], 100)
+    _xplot = np.linspace(_range[0], _range[1], np.max(kwargs.get("bins", 50) * 4, 200))
     _ax.plot(_xplot, gaussian_like(_xplot, *popt))
     _ax.set_xlim(_range[0], _range[1])
     plt.savefig(
