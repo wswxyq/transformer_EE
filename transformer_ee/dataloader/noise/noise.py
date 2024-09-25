@@ -48,8 +48,8 @@ class normalized_noise:
             "scalar": ["scalar1", "scalar2"],
             "noise": {
                 "name": "gaussian",
-                "loc": 0,
-                "scale": 0.1,
+                "mean": 0,
+                "std": 0.1,
                 "vector": ["sequence1"],
                 "scalar": ["scalar1"],
             }
