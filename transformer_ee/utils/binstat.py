@@ -166,8 +166,9 @@ def plot_y_hist(x, name="yhist", **kwargs):
         ha="right",
         va="top",
     )
-
-    _xplot = np.linspace(_range[0], _range[1], np.max(kwargs.get("bins", 50) * 4, 200))
+    _xplot = np.linspace(
+        start=_range[0], stop=_range[1], num=np.max([kwargs.get("bins", 50) * 4, 200])
+    )
     _ax.plot(_xplot, gaussian_like(_xplot, *popt))
     _ax.set_xlim(_range[0], _range[1])
     plt.savefig(
