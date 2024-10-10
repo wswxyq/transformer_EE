@@ -58,3 +58,9 @@ There are two ways to configure the code:
 input_d["model"]["name"] = "Transformer_EE_MV"
 ```
 in the train_script.py file.
+
+## Logging
+
+Transformer_EE supports WandB logging. To enable WandB logging, user should install WandB by running `pip install wandb` and then run the following command: `wandb init` and type in the API key.
+
+A minimal example of using WandB logging is provided in the train_script.py file.

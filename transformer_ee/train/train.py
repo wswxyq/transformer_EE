@@ -181,8 +181,8 @@ class MVtrainer:
                     if self.logger is not None:
                         self.logger.log_scalar(
                             scalars={
-                                "eval/loss": loss.item(),
-                                "eval/step": i * len(self.trainloader) + batch_idx,
+                                "val/loss": loss.item(),
+                                "val/step": i * len(self.trainloader) + batch_idx,
                             },
                             step=i * len(self.trainloader) + batch_idx,
                             epoch=i,

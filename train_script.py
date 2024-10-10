@@ -42,7 +42,7 @@ input_d["dataframe_type"] = "polars"
 
 # from transformer_ee.logger.wandb_train_logger import WandBLogger
 # my_logger = WandBLogger(
-#     project="test", entity="neutrinoenenergyestimators", input_d=input_d
+#     project="test", entity="neutrinoenenergyestimators", input_d=input_d, wandb_dir="save"
 # )
 # my_trainer = MVtrainer(input_d, logger=my_logger)
 my_trainer = MVtrainer(input_d)
