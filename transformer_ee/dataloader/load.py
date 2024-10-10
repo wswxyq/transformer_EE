@@ -83,9 +83,9 @@ def get_train_valid_test_dataloader(config: dict):  # pylint: disable=R0914
 
     dataframe_type = config.get("dataframe_type", "pandas")
     if dataframe_type == "pandas":
-        import pandas as pd
+        import pandas as pd  # pylint: disable=C0415
 
-        from transformer_ee.dataloader.pd_dataset import (
+        from transformer_ee.dataloader.pd_dataset import (  # pylint: disable=C0415
             Normalized_pandas_Dataset_with_cache,
         )
 
@@ -105,7 +105,7 @@ def get_train_valid_test_dataloader(config: dict):  # pylint: disable=R0914
             weighter=train_set.weighter,
         )
     elif dataframe_type == "polars":
-        from transformer_ee.dataloader.pl_dataset import (
+        from transformer_ee.dataloader.pl_dataset import (  # pylint: disable=C0415
             Normalized_Polars_Dataset_with_cache,
             get_polars_df_from_file,
         )

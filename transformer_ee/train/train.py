@@ -9,11 +9,9 @@ import numpy as np
 import torch
 
 from transformer_ee.dataloader.load import get_train_valid_test_dataloader
+from transformer_ee.logger.train_logger import BaseLogger
 from transformer_ee.model import create_model
-from transformer_ee.utils import (
-    get_gpu,
-    hash_dict,
-)
+from transformer_ee.utils import get_gpu, hash_dict
 
 from .loss import linear_combination_loss
 from .loss_track import plot_loss
@@ -33,9 +31,10 @@ class MVtrainer:
     ```
     """
 
-    def __init__(self, input_d: dict):
+    def __init__(self, input_d: dict, logger: BaseLogger | None = None):
         self.gpu_device = get_gpu()  # get gpu device
         self.input_d = input_d
+        self.logger = logger
         print(json.dumps(self.input_d, indent=4))
 
         (
@@ -133,6 +132,15 @@ class MVtrainer:
                     print(
                         "Epoch: {}, batch: {} Loss: {:0.4f}".format(i, batch_idx, loss)
                     )
+                if self.logger is not None:
+                    self.logger.log_scalar(
+                        scalars={
+                            "train/loss": loss.item(),
+                            "train/step": i * len(self.trainloader) + batch_idx,
+                        },
+                        step=i * len(self.trainloader) + batch_idx,
+                        epoch=i,
+                    )
             self.train_loss_list_per_epoch.append(
                 torch.mean(torch.Tensor(batch_train_loss))
             )
@@ -170,6 +178,15 @@ class MVtrainer:
                                 i, batch_idx, loss
                             )
                         )
+                    if self.logger is not None:
+                        self.logger.log_scalar(
+                            scalars={
+                                "eval/loss": loss.item(),
+                                "eval/step": i * len(self.trainloader) + batch_idx,
+                            },
+                            step=i * len(self.trainloader) + batch_idx,
+                            epoch=i,
+                        )
                 self.valid_loss_list_per_epoch.append(
                     torch.mean(torch.Tensor(batch_valid_loss))
                 )
@@ -197,6 +214,8 @@ class MVtrainer:
                 self.valid_loss_list_per_epoch,
                 self.save_path,
             )
+        if self.logger is not None:
+            self.logger.close()
 
     def eval(self):
         r"""

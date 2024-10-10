@@ -38,7 +38,14 @@ input_d["dataframe_type"] = "polars"
 #     "scalar": ["event.calE", "event.nHits"],
 # }
 
+## Example of using WandBLogger
 
+# from transformer_ee.logger.wandb_train_logger import WandBLogger
+# my_logger = WandBLogger(
+#     project="test", entity="neutrinoenenergyestimators", input_d=input_d
+# )
+# my_trainer = MVtrainer(input_d, logger=my_logger)
 my_trainer = MVtrainer(input_d)
+
 my_trainer.train()
 my_trainer.eval()
