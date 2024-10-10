@@ -13,9 +13,9 @@ class WandBLogger(BaseLogger):
     """
 
     def __init__(
-        self, project: str, entity: str, input_d: dict, wandb_dir: str | None = None
+        self, **kwargs,
     ):
-        wandb.init(project=project, entity=entity, config=input_d, dir=wandb_dir)
+        wandb.init(**kwargs)
 
     def log_scalar(self, scalars: dict, step: int, epoch: int):
         wandb.log(scalars)
