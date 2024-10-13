@@ -24,7 +24,8 @@ def load_model_checkpoint(model_dir: str, eval_mode: bool = True):
         torch.load(
             os.path.join(model_dir, "best_model.zip"),
             map_location=torch.device("cpu"),
-        )
+        ),
+        strict=True,
     )
     print("Model loaded from checkpoint.")
     if eval_mode:
