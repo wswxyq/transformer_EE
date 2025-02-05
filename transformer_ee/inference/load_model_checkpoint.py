@@ -10,7 +10,7 @@ from transformer_ee.model import create_model
 
 def load_model_checkpoint(model_dir: str, eval_mode: bool = True):
     """
-    Load a model checkpoint and return a Predictor object.
+    Load a model checkpoint and return a PyTorch model object.
 
     Args:
         model_dir: The directory containing the model checkpoint.
