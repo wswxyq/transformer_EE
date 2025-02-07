@@ -71,4 +71,4 @@ A minimal example of using WandB logging is provided in the train_script.py file
 
 ## More
 
-The above information should help users set up the model training environment and run the script. If you want to know more details such as the code structure, check out the [Wiki page](https://github.com/wswxyq/transformer_EE.wiki.git).
+The above information should help users set up the model training environment and run the script. If you want to know more details such as the code structure, check out the [Wiki page](https://github.com/wswxyq/transformer_EE/wiki).
