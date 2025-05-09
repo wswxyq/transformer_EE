@@ -1,0 +1,106 @@
+{
+    "data_path": "transformer_ee/data/nova/mprod6_2/newprod6_1_dataset_lstm_ee_nd_fhc_nonswap.csv.xz",
+    "num_workers": 10,
+    "dataframe_type": "polars",
+    "vector": [
+        "png.dir.x",
+        "png.dir.y",
+        "png.dir.z",
+        "png.start.x",
+        "png.start.y",
+        "png.start.z",
+        "png.transformercvnpart.muonid",
+        "png.transformercvnpart.electronid",
+        "png.transformercvnpart.pionid",
+        "png.transformercvnpart.protonid",
+        "png.transformercvnpart.photonid",
+        "png.bpf[0].energy",
+        "png.bpf[0].overlapE",
+        "png.bpf[0].momentum.x",
+        "png.bpf[0].momentum.y",
+        "png.bpf[0].momentum.z",
+        "png.bpf[1].energy",
+        "png.bpf[1].overlapE",
+        "png.bpf[1].momentum.x",
+        "png.bpf[1].momentum.y",
+        "png.bpf[1].momentum.z",
+        "png.bpf[2].energy",
+        "png.bpf[2].overlapE",
+        "png.bpf[2].momentum.x",
+        "png.bpf[2].momentum.y",
+        "png.bpf[2].momentum.z",
+        "png.len",
+        "png.nhit",
+        "png.nhitx",
+        "png.nhity",
+        "png.nplane",
+        "png.calE"
+    ],
+    "scalar": [
+        "calE",
+        "remPngCalE",
+        "nHit",
+        "orphCalE",
+        "coarseTiming",
+        "lowGain"
+    ],
+    "target": [
+        "trueE",
+        "trueLepE"
+    ],
+    "weight": {
+        "name": "FlatSpectraWeights",
+        "kwargs": {
+            "alpha": 0.05
+        }
+    },
+    "noise": {
+        "name": "gaussian",
+        "mean": 0,
+        "std": 0.2,
+        "vector": [
+            "png.calE",
+            "png.bpf[0].overlapE",
+            "png.bpf[1].overlapE",
+            "png.bpf[2].overlapE"
+        ],
+        "scalar": [
+            "calE",
+            "orphCalE",
+            "remPngCalE"
+        ]
+    },
+    "max_num_prongs": 10,
+    "batch_size_train": 2048,
+    "batch_size_valid": 256,
+    "batch_size_test": 3000,
+    "test_size": 0.2,
+    "valid_size": 0.04,
+    "seed": 0,
+    "loss": {
+        "kwargs": {
+            "coefficients": [
+                0.5,
+                0.5
+            ],
+            "base_loss_names": [
+                "mean absolute percentage error",
+                "mean absolute percentage error"
+            ]
+        }
+    },
+    "optimizer": {
+        "name": "AdamW",
+        "kwargs": {
+            "lr": 0.0001
+        }
+    },
+    "model": {
+        "name": "Transformer_EE_MV",
+        "kwargs": {
+            "nhead": 16,
+            "num_layers": 12
+        }
+    },
+    "save_path": "save/model/NOvA/mprod6_2/nd_fhc"
+}
