@@ -20,7 +20,7 @@ def string_to_float_list(string) -> list:
 def sequence_statistics(column) -> list:
     """
     Calculate the mean and standard deviation of ALL ELEMENT in a sequence column.
-    Causion: if std = 0, add a small value to avoid division by zero.
+    Caution: if std = 0, add a small value to avoid division by zero.
     """
     _ = []
     for sq in column:
@@ -128,7 +128,7 @@ class Normalized_pandas_Dataset_with_cache(pandas_Dataset):
                 raise ValueError("In evaluation mode, stat cannot be None!")
             print("Using statistics calculated by statistic()!")
             if not self.stat:
-                raise ValueError("Please call statistics() first!")
+                raise ValueError("Please call statistic() first!")
             _stat = self.stat
 
         if self.normalized:

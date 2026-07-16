@@ -11,7 +11,7 @@ from torch.nn import functional as F
 
 class Transformer_EE_MV(nn.Module):
     """
-    information of slice and prongs are cancatenated together.
+    information of slice and prongs are concatenated together.
     parameters:
         d_model: int, the number of expected features in the vector input, must be divisible by nhead
         nhead: int, the number of heads in the multiheadattention models

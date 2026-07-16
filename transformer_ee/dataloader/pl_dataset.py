@@ -142,7 +142,7 @@ class Normalized_Polars_Dataset_with_cache(Polars_Dataset): # pylint: disable=C0
                 raise ValueError("In evaluation mode, stat cannot be None!")
             print("Using statistics calculated by statistic()!")
             if not self.stat:
-                raise ValueError("Please call statistics() first!")
+                raise ValueError("Please call statistic() first!")
             _stat = self.stat
 
         if self.normalized:

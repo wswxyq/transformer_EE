@@ -33,17 +33,17 @@ def get_sample_indices(sample_size: int, config) -> tuple:
     if isinstance(valid_size, float):
         valid_size = int(sample_size * valid_size)
 
-    train_indicies = _indices[: sample_size - valid_size - test_size]
-    valid_indicies = _indices[
+    train_indices = _indices[: sample_size - valid_size - test_size]
+    valid_indices = _indices[
         sample_size - valid_size - test_size : sample_size - test_size
     ]
-    test_indicies = _indices[sample_size - test_size :]
+    test_indices = _indices[sample_size - test_size :]
 
-    print("train indicies size:\t", len(train_indicies))
-    print("valid indicies size:\t", len(valid_indicies))
-    print("test  indicies size:\t", len(test_indicies))
+    print("train indices size:\t", len(train_indices))
+    print("valid indices size:\t", len(valid_indices))
+    print("test  indices size:\t", len(test_indices))
 
-    return train_indicies, valid_indicies, test_indicies
+    return train_indices, valid_indices, test_indices
 
 
 def get_sample_sizes(sample_size: int, config) -> tuple:
@@ -68,9 +68,9 @@ def get_sample_sizes(sample_size: int, config) -> tuple:
     if isinstance(valid_size, float):
         valid_size = int(sample_size * valid_size)
 
-    print("train indicies size:\t", sample_size - test_size - valid_size)
-    print("valid indicies size:\t", valid_size)
-    print("test  indicies size:\t", test_size)
+    print("train indices size:\t", sample_size - test_size - valid_size)
+    print("valid indices size:\t", valid_size)
+    print("test  indices size:\t", test_size)
 
     return sample_size - test_size - valid_size, valid_size, test_size
 

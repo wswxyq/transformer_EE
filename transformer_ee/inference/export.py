@@ -48,7 +48,7 @@ class ModelWithNormalization(nn.Module):
 def export_model(model_dir: str):
     """
     Export the model to TorchScript.
-    User should prepare the normalzed input data for the model.
+    User should prepare the normalized input data for the model.
 
     Args:
         model_dir: The directory containing the model checkpoint.

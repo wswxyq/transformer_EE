@@ -1,5 +1,5 @@
 # transformer_EE
-A transformer encoder based neutrino energy estimator. This is a highly flexible frame work which allows for easy modification of the model, loss function, data loader, etc. Currently, the code supports CSV file with array stored as a comma separated string. We provide example scripts for NOvA and DUNE experiments.
+A transformer encoder based neutrino energy estimator. This is a highly flexible framework which allows for easy modification of the model, loss function, data loader, etc. Currently, the code supports CSV file with array stored as a comma separated string. We provide example scripts for NOvA and DUNE experiments.
 
 ## Features
 
@@ -14,10 +14,10 @@ A transformer encoder based neutrino energy estimator. This is a highly flexible
 It is recommended to use a Python virtual environment/container to run the code.
 
 * Python 3.10 was used for development (higher versions should be compatible).
-* PyTorch 2.4.1 was used for development (higher versions should be compatible). Pytorch 2.4.1 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS or CPU.
+* PyTorch 2.4.1 was used for development (higher versions should be compatible). PyTorch 2.4.1 supports both CUDA and Apple MPS. By default, the code will use CUDA if it is available. Otherwise, it will use Apple MPS or CPU.
 * Pandas (default dataframe library)
 * [Polars](https://pola.rs/) (an optional faster dataframe library). We recommend Polars for better memory efficiency and faster data preprocessing.
-* Numpy
+* NumPy
 * Matplotlib >= 3.5.
 
 ### Example conda setup in a Linux system with NVIDIA GPU
@@ -42,7 +42,7 @@ Test that the `PYTHONPATH` is set correctly by running the following command:
 ```
 echo $PYTHONPATH
 ```
-The commandline should return:
+The command line should return:
 ```
 /home/user/transformer_EE:
 ```
@@ -54,7 +54,7 @@ python3 train_script.py
 ```
 
 ## Configuring the code
-The config file is a json file. The default config file is located at transformer_ee/config.
+The config file is a JSON file. The default config file is located at transformer_ee/config.
 There are two ways to configure the code:
 1. Edit the config file directly (not recommended as these files could be used by other scripts).
 2. Modify the dictionary in the train_script.py file. For example, to select the model, add the following line:
